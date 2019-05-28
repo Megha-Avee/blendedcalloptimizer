@@ -1,4 +1,4 @@
-# [Operations Simulator](https://operationsimulation.herokuapp.com/)
+# [Operations Simulator](https://operationsimulation.herokuapp.com/) >> Sequel 2 (to be updated soon... )
 
 ##### About this Simulator:
 This simulator was built to provide an interactive platform for running simulations on 
