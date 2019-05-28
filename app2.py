@@ -90,7 +90,8 @@ app.layout = html.Div([
 
                 html.Div(id='agent-metrics', children=[], className='row'),
 
-                html.Div([html.Div(dcc.Graph(id='agent-idle-times'), className='col-6')
+                html.Div([html.Div(dcc.Graph(id='agent-idle-times'), className='col-6'),
+                          html.Div(dcc.Graph(id='agent-switches'), className='col-6')
                          ], className='row'),
 
 
@@ -137,7 +138,8 @@ def overall_metrics_display(overall_metrics):
                 Output('result-header', 'style'),
                 Output('result-header-1', 'style'),
                 Output('result-header-2', 'style'),
-                Output('agent-idle-times', 'figure')],
+                Output('agent-idle-times', 'figure'),
+                Output('agent-switches', 'figure')],
               [Input('run-simulation', 'n_clicks'),
                Input('allocation-method', 'value')])
 
@@ -152,8 +154,11 @@ def calculate_metrics(n_clicks, allocation_method):
         intvl_st_time = [dt.time(x.hour, x.minute, x.second) for x in intvl_st_time_day]
         intvl_call_count = [np.random.poisson(x) for x in intvl_avg_calls]
         intvl_call_count = [np.random.poisson(x) for x in intvl_avg_calls]
+        
+        #Inputs to be taken from user
+        #--------------------
         aht_range = [300, 400]
-        agent_count = 3
+        agent_count = 5
         
         call_tbl = cgd.call_table(intvl_st_time, intvl_call_count, aht_range)
         agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method)
@@ -164,6 +169,7 @@ def calculate_metrics(n_clicks, allocation_method):
         overall_metrics_to_display = overall_metrics_display(overall_metrics)
         
         #plot agent metrics
+        #-------------------
         idle_traces = []
         
         idle_traces.append(go.Bar(
@@ -180,50 +186,53 @@ def calculate_metrics(n_clicks, allocation_method):
                 name="Agent Idle Times (% of total time)",
                 opacity=0.6
                 ))
+                        
+        #-------------------
+        #plot call distribution
+        call_types = ['inbound', 'outbound']
+        
+        #plot call switches
+        #-------------------
+        switch_traces = []
+        
+        switch_traces.append(go.Bar(
+                x=agent_metrics['agent_index'],
+                y=agent_metrics['number_of_switches'],
+                text=['Agent ' + str(agent_metrics['agent_index'][x]) + ' switched call types ' + "{} times".format(agent_metrics['number_of_switches'][x]) for x in agent_metrics.index.tolist()],
+                hoverinfo='text',
+                marker=dict(
+                        color='rgb(222,45,38)',
+                        line=dict(
+                                color='rgb(222,45,38)',
+                                width=1.5),
+                                ),
+                name="Agent Call Switches",
+                opacity=0.6
+                ))
+        #-------------------
 
-        return agent_metrics.to_dict('records'), [{"name": i, "id": i} for i in agent_metrics.columns],\
-        agent_metrics_to_display, overall_metrics_to_display, {'display': ''}, {'display': ''}, {'display': ''},\
-        {'data': idle_traces, 
-         'layout': go.Layout(
-                 title='Agent Idle Time (in percentage of overall time)',
-                 xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
-                 yaxis={'zeroline': False, 'showgrid': False, 'range': [0.9*min(agent_metrics['idle_time']), 1.1*max(agent_metrics['idle_time'])], 'tickformat': ",.1%"}
-                 )
-         }
+        return agent_metrics.to_dict('records'),\
+                [{"name": i, "id": i} for i in agent_metrics.columns],\
+                agent_metrics_to_display, overall_metrics_to_display,\
+                {'display': ''},\
+                {'display': ''},\
+                {'display': ''},\
+                {'data': idle_traces, 
+                 'layout': go.Layout(
+                         title='Agent Idle Time (in percentage of overall time)',
+                         xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
+                         yaxis={'zeroline': False, 'showgrid': False, 'range': [0.9*min(agent_metrics['idle_time']), 1.1*max(agent_metrics['idle_time'])], 'tickformat': ",.1%"}
+                         )
+                 },\
+                {'data': switch_traces, 
+                 'layout': go.Layout(
+                         title='Number of Call Type switches',
+                         xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
+                         yaxis={'zeroline': False, 'showgrid': False, 'range': [0.9*min(agent_metrics['number_of_switches']), 1.1*max(agent_metrics['number_of_switches'])], 'tickformat': ""}
+                         )
+                 }
     else:
-        return '','', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}
-
-
-#def charting():
-#    trace1 = go.Bar(
-#    x=x,
-#    y=y,
-#    text=y,
-#    textposition = 'auto',
-#    marker=dict(
-#        color='rgb(158,202,225)',
-#        line=dict(
-#            color='rgb(8,48,107)',
-#            width=1.5),
-#        ),
-#    opacity=0.6
-#    )
-#    
-#    trace2 = go.Bar(
-#        x=x,
-#        y=y2,
-#        text=y2,
-#        textposition = 'auto',
-#        marker=dict(
-#            color='rgb(58,200,225)',
-#            line=dict(
-#                color='rgb(8,48,107)',
-#                width=1.5),
-#            ),
-#        opacity=0.6
-#        )
-#
-#    data = [trace1,trace2]
+        return '','', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}
 
 #-------------------------------
 #External CSS Links
