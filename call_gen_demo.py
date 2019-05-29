@@ -66,6 +66,8 @@ def agent_table(agent_count, call_table_df, use_cost_calculation=0):
                 'intvl_start_time','call_arrival_time', 'intvl_time_elapsed', 'call_end_time_elapsed', 'call_wait_time_elapsed', 'call_type']
     agent_table_df = pd.DataFrame(columns=col_name)
 
+    costTable = pd.DataFrame(columns=['agent_index', 'call_skewness', 'idle_time', \
+                                    'last_call_type', 'agent_status', 'assignment_cost']) 
 
     for i in range(len(call_table_df)):
 
@@ -73,6 +75,11 @@ def agent_table(agent_count, call_table_df, use_cost_calculation=0):
         agentPicked = assignCalltoAgent(agent_status, agent_table_df, next_call_details=call_table_df[i:i+1], use_cost_calculation=use_cost_calculation)
         #print('agent picked is: ',agentPicked)
         #print('Agent Status List: ', agent_status)
+        
+        if use_cost_calculation == 1:
+            costTable = pd.concat([costTable, agentPicked[1]])
+            agentPicked = agentPicked[0]
+            
 
         if agent_status[agentPicked] == 1:
             call_handle_start_time = call_table_df['call_start_time'][i]
@@ -98,8 +105,10 @@ def agent_table(agent_count, call_table_df, use_cost_calculation=0):
         #print(int_df)
         agent_table_df = agent_table_df.append(int_df, ignore_index=True)
 
-
-    return agent_table_df
+    if use_cost_calculation == 1:
+        return agent_table_df, costTable
+    else:
+        return agent_table_df
 
 def updateAgentStatus(update_for_time, agent_status, agent_table_df):
     '''

@@ -12,6 +12,10 @@ import datetime as dt
 
 import call_gen_demo as cgd
 
+import timeit
+run_times= {}
+from timeit import default_timer as timer
+
 class dynamicCall:
     """
     """
@@ -38,18 +42,31 @@ def calculateAgentCosts(agent_costs, call_types, next_call, agent_tbl, call_swit
     next_call= next_call.reset_index()
     call_distribution_actual, call_distribution_ratios = currentParameters(call_types, agent_tbl)
     
+    
+    call_count_types = agent_tbl.groupby(['agent_index', 'call_type'])['call_type'].count()
+    call_aht_sum = agent_tbl.groupby('agent_index')['call_aht'].sum()
+    
     for agent_index in agent_costs['agent_index'].drop_duplicates().tolist():
-        call_distribution_list = []
-        for call_type_index in range(len(call_types)):
-            call_distribution_list.append(len(agent_tbl[(agent_tbl['agent_index']==agent_index) \
-                                                        & (agent_tbl['call_type']==call_types[call_type_index])]))
+        print("--->>--- Agent No. ", agent_index)
+        #filtered_agent_tbl = agent_tbl[agent_tbl['agent_index']==agent_index]
         
+        call_distribution_list = []
+        for call_type_names in call_types:
+            if True in call_count_types.index.isin([(agent_index, call_type_names)]):
+                call_distribution_list.append(call_count_types[agent_index][call_type_names])
+            else:
+                call_distribution_list.append(1)
+        
+#        len(filtered_agent_tbl[filtered_agent_tbl['call_type']==call_types[call_type_index]])
         agent_costs['call_skewness'][agent_index] = call_distribution_list
-        agent_costs['idle_time'][agent_index] = 1 - agent_tbl[agent_tbl['agent_index']==agent_index]['call_aht'].sum()/86400
+        if True in call_aht_sum.index.isin([agent_index]):
+            agent_costs['idle_time'][agent_index] = 1 - call_aht_sum[agent_index]/86400
+        else:
+            agent_costs['idle_time'][agent_index] = 1
         #agent_costs
         
         next_call_type_index = call_types.index(next_call['call_type'][0])
-        
+
         
         if sum(agent_costs['call_skewness'][agent_index]) > 0:
             distribution_cost_factor = call_distribution_ratios[next_call_type_index] - \
@@ -115,7 +132,7 @@ def pickLeastCostlyAgent(agent_status, call_types, next_call,
     
     #print("------->>----")
     #print(agent_costs)
-    return pickedAgent
+    return pickedAgent, agent_costs
 
 
 def agentAggMetrics(agent_tbl, call_types=['inbound', 'outbound']):
@@ -167,7 +184,7 @@ def overallMetrics(agent_tbl, call_types=['inbound', 'outbound']):
 if __name__ == '__main__':
     intvl_avg_calls = list(range(0,24,1)) + list(range(24,0,-1))
     intvl_call_count = [np.random.poisson(x) for x in intvl_avg_calls]
-    max_intvl_calls = 10
+    max_intvl_calls = 5
     intvl_avg_calls = [x*max_intvl_calls/max(intvl_avg_calls) for x in intvl_avg_calls]
     intvl_st_time_day = [(dt.datetime(2018,1,1,0,0,0) + dt.timedelta(minutes= +30*x))  for x in range(len(intvl_avg_calls))]
     intvl_st_time = [dt.time(x.hour, x.minute, x.second) for x in intvl_st_time_day]
@@ -176,7 +193,10 @@ if __name__ == '__main__':
     aht_range = [300, 400]
     agent_count = 3
     call_tbl = cgd.call_table(intvl_st_time, intvl_call_count, aht_range)
-    agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=0)
+    
+    start = timer()
+    agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=1)
+    print("Total Execution Time (sec): ", round(timer()-start,2))
  
     #call_types=['inbound', 'outbound']
     #cgd.updateAgentStatus(call_tbl['call_start_time'][10], [1,1,1], agent_tbl)

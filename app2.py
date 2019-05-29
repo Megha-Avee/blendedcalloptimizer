@@ -17,6 +17,8 @@ from dash.dependencies import Input, Output, State
 import dash_table
 import statistics as st
 
+from app import graphingRegion, margin
+
 #Internal package with functions and classes
 import call_gen_demo as cgd
 from call_generator_distribution import agentAggMetrics, overallMetrics
@@ -29,6 +31,8 @@ app.title = 'Blended Call Optimizer'
 #App Layout
 app.layout = html.Div([
                 html.Div([html.H5("Step 1: Define Call Distribution: ")], className=''),
+                
+                html.Div(),
 
                 html.Hr(),
 
@@ -77,7 +81,7 @@ app.layout = html.Div([
 
                 dcc.Loading(children=[
                         
-                html.Div([html.H5(id='result-header', children="Results: Simulation based on cost allocation is shown below: ")], className='', style={'display': 'none'}),
+                html.Div([html.H5(id='result-header', children="Results: Simulation based on cost allocation is shown below: ", style={'display': 'none'})], className=''),
 
                 html.Div(id='intermediate-values', style={'display': 'none'}),
                 html.Div(id='allocation-results'),
@@ -90,8 +94,10 @@ app.layout = html.Div([
 
                 html.Div(id='agent-metrics', children=[], className='row'),
 
-                html.Div([html.Div(dcc.Graph(id='agent-idle-times'), className='col-6'),
-                          html.Div(dcc.Graph(id='agent-switches'), className='col-6')
+                html.Div([html.Div(dcc.Graph(id='agent-idle-times', config={'displayModeBar': False}, figure=graphingRegion(225, margin={'l':0, 'b':0, 'r':0, 't':0})), className='col-4'),
+                          html.Div(dcc.Graph(id='agent-switches', config={'displayModeBar': False}, figure=graphingRegion(225, margin)), className='col-4'),
+                          html.Div(dcc.Graph(id='call-distribution', config={'displayModeBar': False}, figure=graphingRegion(225, margin)), className='col-4'),
+                          html.Div(dcc.Graph(id='call-costs', config={'displayModeBar': False}, figure=graphingRegion(225, margin)), className='col')
                          ], className='row'),
 
 
@@ -139,7 +145,9 @@ def overall_metrics_display(overall_metrics):
                 Output('result-header-1', 'style'),
                 Output('result-header-2', 'style'),
                 Output('agent-idle-times', 'figure'),
-                Output('agent-switches', 'figure')],
+                Output('agent-switches', 'figure'),
+                Output('call-distribution', 'figure'),
+                Output('call-costs', 'figure')],
               [Input('run-simulation', 'n_clicks'),
                Input('allocation-method', 'value')])
 
@@ -148,7 +156,7 @@ def calculate_metrics(n_clicks, allocation_method):
     if n_clicks is not None:
         intvl_avg_calls = list(range(0,24,1)) + list(range(24,0,-1))
         intvl_call_count = [np.random.poisson(x) for x in intvl_avg_calls]
-        max_intvl_calls = 10
+        max_intvl_calls = 2
         intvl_avg_calls = [x*max_intvl_calls/max(intvl_avg_calls) for x in intvl_avg_calls]
         intvl_st_time_day = [(dt.datetime(2018,1,1,0,0,0) + dt.timedelta(minutes= +30*x))  for x in range(len(intvl_avg_calls))]
         intvl_st_time = [dt.time(x.hour, x.minute, x.second) for x in intvl_st_time_day]
@@ -158,10 +166,14 @@ def calculate_metrics(n_clicks, allocation_method):
         #Inputs to be taken from user
         #--------------------
         aht_range = [300, 400]
-        agent_count = 5
+        agent_count = 2
         
         call_tbl = cgd.call_table(intvl_st_time, intvl_call_count, aht_range)
-        agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method)
+        if allocation_method == 1:
+            agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method)
+            costTable = agent_tbl[1]
+            agent_tbl = agent_tbl[0]
+            
         agent_metrics = agentAggMetrics(agent_tbl)
         overall_metrics = overallMetrics(agent_tbl)
 
@@ -210,6 +222,39 @@ def calculate_metrics(n_clicks, allocation_method):
                 opacity=0.6
                 ))
         #-------------------
+        #plot call distributions
+        dist_traces = []
+        
+        for calltypes in call_types:
+            dist_traces.append(go.Bar(
+                    x=agent_metrics['agent_index'],
+                    y=agent_metrics[calltypes],
+                    text=['Agent ' + str(agent_metrics['agent_index'][x]) + ' took ' + "{0:.1%} ".format(agent_metrics[calltypes][x]) + calltypes for x in agent_metrics.index.tolist()],
+                    hoverinfo='text',
+                    name="Contact Type: " + calltypes,
+                    opacity=0.6
+                    ))
+
+        #-------------------
+        graphingRegionMargins = go.layout.Margin(l=80,r=10, b=20, t=40, pad=20)
+        
+        #-------------------
+        #Cost Allocation Chart
+        if allocation_method == 1:
+            allocation_traces = []
+        
+            for agent_index in costTable['agent_index'].drop_duplicates().tolist():
+                allocation_traces.append(go.Scatter(
+                        x=costTable[costTable['agent_index']==agent_index].reset_index().index,
+                        y=costTable[costTable['agent_index']==agent_index]['assignment_cost'],
+                        mode='lines+markers'))
+            
+            plot_costs_data = {'data': allocation_traces,
+                         'layout': go.Layout()}
+        else:
+            plot_costs_data ={}
+        
+        
 
         return agent_metrics.to_dict('records'),\
                 [{"name": i, "id": i} for i in agent_metrics.columns],\
@@ -219,20 +264,34 @@ def calculate_metrics(n_clicks, allocation_method):
                 {'display': ''},\
                 {'data': idle_traces, 
                  'layout': go.Layout(
-                         title='Agent Idle Time (in percentage of overall time)',
+                         title='Agent Idle Time (% of overall time)',
                          xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
-                         yaxis={'zeroline': False, 'showgrid': False, 'range': [0.9*min(agent_metrics['idle_time']), 1.1*max(agent_metrics['idle_time'])], 'tickformat': ",.1%"}
+                         yaxis={'zeroline': True, 'showgrid': True, 'range': [0.9*min(agent_metrics['idle_time']), 1.1*max(agent_metrics['idle_time'])], 'tickformat': ",.1%"},
+                         margin= graphingRegionMargins,
+                         font=dict(family='Arial', size=12)
                          )
                  },\
                 {'data': switch_traces, 
                  'layout': go.Layout(
                          title='Number of Call Type switches',
-                         xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
-                         yaxis={'zeroline': False, 'showgrid': False, 'range': [0.9*min(agent_metrics['number_of_switches']), 1.1*max(agent_metrics['number_of_switches'])], 'tickformat': ""}
+                         xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': True},
+                         yaxis={'zeroline': True, 'showgrid': True, 'range': [0.9*min(agent_metrics['number_of_switches']), 1.1*max(agent_metrics['number_of_switches'])], 'tickformat': ""},
+                         margin= graphingRegionMargins,
+                         font=dict(family='Arial', size=12)
                          )
-                 }
+                 },\
+                {'data': dist_traces,
+                 'layout': go.Layout(
+                         barmode='stack',
+                         title='Call distribution by agent',
+                         showlegend=False,
+                         yaxis={'tickformat': ",.1%"},
+                         margin= graphingRegionMargins,
+                         font=dict(family='Arial', size=12)
+                         )},\
+                 plot_costs_data
     else:
-        return '','', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}
+        return '','', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, {}
 
 #-------------------------------
 #External CSS Links
