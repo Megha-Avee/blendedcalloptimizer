@@ -30,9 +30,21 @@ app.title = 'Blended Call Optimizer'
 #-------------------------------
 #App Layout
 app.layout = html.Div([
-                html.Div([html.H5("Step 1: Define Call Distribution: ")], className=''),
+                html.Div([html.H5("Step 1: Define Call Distribution: ")], className='', style={'background-color': 'rgba()'}),
                 
-                html.Div(),
+                html.Div([html.H5("Enter Simulation Parameters:", className='card-title col-12'),
+                                                     html.Div([html.Label('Number of Agents:'),
+                                                               dcc.Input(id='agent-count', type='number', step=1, placeholder='3', className='form-control')], className='form-group col-4'),
+                                                    html.Div([html.Label('Peak Call Count (half-hr interval):'),
+                                                               dcc.Input(id='call-level', type='number', step=1, placeholder='10', className='form-control')], className='form-group col-4'),
+                                                    html.Div([html.Label('AHT Range:'),html.Br(),
+                                                               dcc.Input(id='aht-range-from', type='number', step=1, placeholder='From', className='form-control', style={'width': '40%', 'display': 'inline-block'}),
+                                                               html.P(" - ", style={'text-align': 'center', 'width': '5%', 'display': 'inline-block'}),
+                                                                dcc.Input(id='aht-range-to', type='number', step=1, placeholder='To', className='form-control', style={'width': '40%', 'display': 'inline-block'})], className='form-group col-4')
+
+
+                        
+                        ], className='row'),
 
                 html.Hr(),
 
@@ -44,33 +56,33 @@ app.layout = html.Div([
                                             {'label': 'Random Allocation', 'value': 0},
                                             {'label': 'Systematic Cost Based Allocation', 'value': 1}], value=1)], className='col'), className='row'),
 
-                html.Div([html.Div(html.Div(html.Div([
+                html.Div(id='allocation-cost-tile', children=[html.Div(html.Div([
                             html.H5("Agent Idle Cost", className='card-title'),
-                            html.P("Cost associated with idle time will be accounted using this factor.", className='card-text'),
-                            html.Div([html.Label('Factor = ',),
-                                        dcc.Input(id='factor-1', type='number', step=1, placeholder='7/30', className='form-control')], className='form-group'),
+                            html.P("Cost associated with idle time will be accounted using this factor. This factor is defined by the percentage of time the agent was idle.", className='card-text'),
+                            html.Div([html.Label('Factor Defined By:'),
+                                        dcc.Input(id='factor-1', type='text', step=1, placeholder='% Time Agent Idle', disabled=True, className='form-control')], className='form-group'),
                             html.Div([html.Label('Weight = ',),
-                                        dcc.Input(id='weight-factor-1', type='number', step=0.1, placeholder='0.5', className='form-control')], className='form-group')
-                        ], className='card-body'), className='card shadow-sm'), className='col-4'),
+                                        dcc.Input(id='weight-factor-1', type='number', step=0.1, min=0, max=1, placeholder='0.33', className='form-control')], className='form-group')
+                        ], className='card-body'), className='card shadow-sm'),
 
-                        html.Div(html.Div(html.Div([
+                        html.Div(html.Div([
                             html.H5("Switching Cost", className='card-title'),
                             html.P("Cost associated with switching between various contact methods will be accounted by this factor.", className='card-text'),
-                            html.Div([html.Label('Factor = ',),
-                                        dcc.Input(id='factor-2', type='number', step=1, placeholder='7/30', className='form-control')], className='form-group'),
+                            html.Div([html.Label('Factor Defined By:'),
+                                        dcc.Input(id='factor-2', type='number', step=1, placeholder='Default = 7 sec', className='form-control')], className='form-group'),
                             html.Div([html.Label('Weight = ',),
-                                        dcc.Input(id='weight-factor-2', type='number', step=0.1, placeholder='0.5', className='form-control')], className='form-group')
-                        ], className='card-body'), className='card shadow-sm'), className='col-4'),
+                                        dcc.Input(id='weight-factor-2', type='number', step=0.1, min=0, max=1, placeholder='0.33', className='form-control')], className='form-group')
+                        ], className='card-body'), className='card shadow-sm'),
 
-                        html.Div(html.Div(html.Div([
+                        html.Div(html.Div([
                             html.H5("Distribution Skewness Cost", className='card-title'),
                             html.P("Cost associated with skewed distribution of calls will be accounted by this factor.", className='card-text'),
-                            html.Div([html.Label('Factor = ',),
-                                        dcc.Input(id='factor-3', type='number', step=1, placeholder='7/30', className='form-control')], className='form-group'),
+                            html.Div([html.Label('Factor Defined By:'),
+                                        dcc.Input(id='factor-3', type='number', step=1, placeholder='% Call Type Skewed', disabled=True, className='form-control')], className='form-group'),
                             html.Div([html.Label('Weight = ',),
-                                        dcc.Input(id='weight-factor-3', type='number', step=0.1, placeholder='0.5', className='form-control')], className='form-group')
-                        ], className='card-body'), className='card shadow-sm'), className='col-4'),
-                ], className='row mt-4'),
+                                        dcc.Input(id='weight-factor-3', type='number', step=0.1, min=0, max=1, placeholder='0.33', className='form-control')], className='form-group')
+                        ], className='card-body'), className='card shadow-sm'),
+                ], className='row mt-4 card-deck'),
                 #End: Input Cost Paramenters
 
                 html.Hr(),
@@ -105,7 +117,7 @@ app.layout = html.Div([
                 
                 dash_table.DataTable(id='table')], type='cube'),
 
-            ], className='container')
+            ], className='container my-4')
 
 
 #-------------------------------
@@ -148,10 +160,12 @@ def overall_metrics_display(overall_metrics):
                 Output('agent-switches', 'figure'),
                 Output('call-distribution', 'figure'),
                 Output('call-costs', 'figure')],
-              [Input('run-simulation', 'n_clicks'),
-               Input('allocation-method', 'value')])
+                [Input('run-simulation', 'n_clicks')],
+                [State('allocation-method', 'value'),
+                 State('factor-2', 'value')]
+              )
 
-def calculate_metrics(n_clicks, allocation_method):
+def calculate_metrics(n_clicks, allocation_method, switching_cost):
     
     if n_clicks is not None:
         intvl_avg_calls = list(range(0,24,1)) + list(range(24,0,-1))
@@ -169,8 +183,8 @@ def calculate_metrics(n_clicks, allocation_method):
         agent_count = 2
         
         call_tbl = cgd.call_table(intvl_st_time, intvl_call_count, aht_range)
+        agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method)
         if allocation_method == 1:
-            agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method)
             costTable = agent_tbl[1]
             agent_tbl = agent_tbl[0]
             
@@ -292,6 +306,19 @@ def calculate_metrics(n_clicks, allocation_method):
                  plot_costs_data
     else:
         return '','', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, {}
+
+
+@app.callback(Output('allocation-cost-tile', 'style'), 
+              [Input('allocation-method', 'value')]
+              )
+
+def show_hide_tile(allocation_method):
+    if allocation_method == 1:
+        return {'display': ''}
+    else:
+        return {'display': 'none'}
+
+
 
 #-------------------------------
 #External CSS Links
