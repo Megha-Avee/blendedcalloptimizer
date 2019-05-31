@@ -36,7 +36,7 @@ class dynamicCall:
                 break
 
 
-def calculateAgentCosts(agent_costs, call_types, next_call, agent_tbl, call_switch_agent_time=7.00, call_bp_time=60.00):
+def calculateAgentCosts(agent_costs, call_types, next_call, agent_tbl, call_switch_agent_time=7.00, call_bp_time=60.00, weight_idle=1, weight_dist=1, weight_switch=1):
     """
     """
     next_call= next_call.reset_index()
@@ -85,7 +85,7 @@ def calculateAgentCosts(agent_costs, call_types, next_call, agent_tbl, call_swit
                 switch_cost_factor = call_switch_agent_time/call_bp_time
         
         #print(switch_cost_factor)
-        agent_costs['assignment_cost'][agent_index] = distribution_cost_factor + idleness_cost_factor + switch_cost_factor
+        agent_costs['assignment_cost'][agent_index] = distribution_cost_factor*weight_dist + idleness_cost_factor*weight_idle + switch_cost_factor*weight_switch
     
     #print("---->>--Agent Costs calculated:\n", agent_costs)
     return agent_costs
@@ -110,7 +110,7 @@ def currentParameters(call_types, agent_tbl):
 
 
 def pickLeastCostlyAgent(agent_status, call_types, next_call, 
-                         agent_tbl, call_switch_agent_time=7.00, call_bp_time=60.00):
+                         agent_tbl, call_switch_agent_time=7.00, call_bp_time=60.00, weight_idle=1, weight_dist=1, weight_switch=1):
     """
     """
     agent_costs = pd.DataFrame(columns=['agent_index', 'call_skewness', 'idle_time', \
@@ -119,7 +119,7 @@ def pickLeastCostlyAgent(agent_status, call_types, next_call,
     agent_costs['agent_index'] = range(len(agent_status))
     agent_costs['agent_status'] = agent_status
     
-    agent_costs = calculateAgentCosts(agent_costs, call_types, next_call, agent_tbl, call_switch_agent_time, call_bp_time)
+    agent_costs = calculateAgentCosts(agent_costs, call_types, next_call, agent_tbl, call_switch_agent_time, call_bp_time, weight_idle=weight_idle, weight_dist=weight_dist, weight_switch=weight_switch)
     if len(agent_costs[agent_costs['agent_status']==1]) == 0:
         #All agents currently busy
         agent_avail_list = cgd.agentNextAvail(agent_status, agent_table_df=agent_tbl)
@@ -161,7 +161,7 @@ def agentAggMetrics(agent_tbl, call_types=['inbound', 'outbound']):
         
     
     agent_metrics['call_aht'] = agent_metrics_call_aht
-    agent_metrics['idle_time'] = 1 - agent_metrics['call_aht']/86400
+    agent_metrics['idle_time'] = 1 - agent_metrics['call_aht']/86400.00
     agent_metrics['number_of_switches'] = number_of_switches
     
     

@@ -29,32 +29,49 @@ app.title = 'Blended Call Optimizer'
 
 #-------------------------------
 #App Layout
+
+#<nav class="navbar navbar-light bg-light">
+#  <span class="navbar-brand mb-0 h1">Navbar</span>
+#</nav>
+
+
 app.layout = html.Div([
-                html.Div([html.H5("Step 1: Define Call Distribution: ")], className='', style={'background-color': 'rgba()'}),
                 
-                html.Div([html.H5("Enter Simulation Parameters:", className='card-title col-12'),
+                
+                html.Nav([html.Span("1-Define Call Distribution: ", className='navbar-brand mb-0 h1')], className='navbar navbar-dark bg-dark', style={'background-color': 'rgba()'}),
+                
+                html.Div([html.H6("Enter Simulation Parameters:", className='card-title col-12'),
                                                      html.Div([html.Label('Number of Agents:'),
-                                                               dcc.Input(id='agent-count', type='number', step=1, placeholder='3', className='form-control')], className='form-group col-4'),
+                                                               dcc.Input(id='agent-count', type='number', step=1, placeholder='Example = 3', className='form-control')], className='form-group col-4'),
                                                     html.Div([html.Label('Peak Call Count (half-hr interval):'),
-                                                               dcc.Input(id='call-level', type='number', step=1, placeholder='10', className='form-control')], className='form-group col-4'),
+                                                               dcc.Input(id='call-level', type='number', step=1, placeholder='Example = 10', className='form-control')], className='form-group col-4'),
                                                     html.Div([html.Label('AHT Range:'),html.Br(),
-                                                               dcc.Input(id='aht-range-from', type='number', step=1, placeholder='From', className='form-control', style={'width': '40%', 'display': 'inline-block'}),
+                                                               dcc.Input(id='aht-range-from', type='number', step=1, placeholder='From', className='form-control', style={'width': '42%', 'display': 'inline-block'}),
                                                                html.P(" - ", style={'text-align': 'center', 'width': '5%', 'display': 'inline-block'}),
-                                                                dcc.Input(id='aht-range-to', type='number', step=1, placeholder='To', className='form-control', style={'width': '40%', 'display': 'inline-block'})], className='form-group col-4')
+                                                                dcc.Input(id='aht-range-to', type='number', step=1, placeholder='To', className='form-control', style={'width': '42%', 'display': 'inline-block'})], className='form-group col-4')
+                        ], className='row mt-2 mx-2'),
 
+                html.Div([html.H6("Define Call Distirbutions:", className='card-title col-12'),
+                                                     html.Div([html.Label('Call Types (Enter names separated by commas):'),
+                                                               dcc.Input(id='call-types', type='text', placeholder='Example = Inbound, Outbound', disabled=True, className='form-control')], className='form-group col-6'),
+                                                    html.Div([html.Label('Call Type Distributions (Fractional values separated by commas):'),
+                                                               dcc.Input(id='call-proportion', type='text', placeholder='Example = 0.3, 0.7', disabled=True, className='form-control')], className='form-group col-6'),
+                        ], className='row mt-2 mx-2'),
+#                html.Hr(),
 
-                        
-                        ], className='row'),
+                html.Nav([html.Span("2-Design Allocation Strategy: ", className='navbar-brand mb-0 h1')], className='navbar navbar-dark bg-dark mt-4'),
 
-                html.Hr(),
-
-                html.Div([html.H5("Step 2: Define Cost Parameters for Cost Allocation Function: ")], className=''),
-
+                #------
                 #Start: Input Cost Parameters
                 html.Div(html.Div([html.Label('Select your allocation method:'),
                                     dcc.Dropdown(id='allocation-method', options=[
                                             {'label': 'Random Allocation', 'value': 0},
-                                            {'label': 'Systematic Cost Based Allocation', 'value': 1}], value=1)], className='col'), className='row'),
+                                            {'label': 'Systematic Cost Based Allocation', 'value': 1}], value=1)], className='col'), className='row mt-2 mx-2'),
+
+                html.Div(html.Div([html.H6("Your Call Allocation Strategy:"), 
+                                  html.P(id="cost-allocation-desc")] #--> Allocation Strategy Description
+                                  , className='col'), className='row mx-2 mt-4'),
+
 
                 html.Div(id='allocation-cost-tile', children=[html.Div(html.Div([
                             html.H5("Agent Idle Cost", className='card-title'),
@@ -62,16 +79,16 @@ app.layout = html.Div([
                             html.Div([html.Label('Factor Defined By:'),
                                         dcc.Input(id='factor-1', type='text', step=1, placeholder='% Time Agent Idle', disabled=True, className='form-control')], className='form-group'),
                             html.Div([html.Label('Weight = ',),
-                                        dcc.Input(id='weight-factor-1', type='number', step=0.1, min=0, max=1, placeholder='0.33', className='form-control')], className='form-group')
+                                        dcc.Input(id='weight-factor-idle', type='number', step=0.1, min=0, max=1, placeholder='0.33', className='form-control')], className='form-group')
                         ], className='card-body'), className='card shadow-sm'),
 
                         html.Div(html.Div([
                             html.H5("Switching Cost", className='card-title'),
                             html.P("Cost associated with switching between various contact methods will be accounted by this factor.", className='card-text'),
                             html.Div([html.Label('Factor Defined By:'),
-                                        dcc.Input(id='factor-2', type='number', step=1, placeholder='Default = 7 sec', className='form-control')], className='form-group'),
+                                        dcc.Input(id='factor-switch', type='number', step=1, placeholder='Default = 7 sec', className='form-control')], className='form-group'),
                             html.Div([html.Label('Weight = ',),
-                                        dcc.Input(id='weight-factor-2', type='number', step=0.1, min=0, max=1, placeholder='0.33', className='form-control')], className='form-group')
+                                        dcc.Input(id='weight-factor-switch', type='number', step=0.1, min=0, max=1, placeholder='0.33', className='form-control')], className='form-group')
                         ], className='card-body'), className='card shadow-sm'),
 
                         html.Div(html.Div([
@@ -80,22 +97,21 @@ app.layout = html.Div([
                             html.Div([html.Label('Factor Defined By:'),
                                         dcc.Input(id='factor-3', type='number', step=1, placeholder='% Call Type Skewed', disabled=True, className='form-control')], className='form-group'),
                             html.Div([html.Label('Weight = ',),
-                                        dcc.Input(id='weight-factor-3', type='number', step=0.1, min=0, max=1, placeholder='0.33', className='form-control')], className='form-group')
+                                        dcc.Input(id='weight-factor-dist', type='number', step=0.1, min=0, max=1, placeholder='0.33', className='form-control')], className='form-group')
                         ], className='card-body'), className='card shadow-sm'),
-                ], className='row mt-4 card-deck'),
+                ], className='row mt-2 card-deck mx-2'),
                 #End: Input Cost Paramenters
+                #------
+
+                html.Div([html.Button("Run Call Allocation Simulation", id='run-simulation', className='btn btn-outline-info btn-block mt-4')]),
 
                 html.Hr(),
 
-                html.Div([html.Button("Run Call Allocation Simulation", id='run-simulation', className='btn btn-outline-info btn-block')]),
-
-                html.Hr(),
-
-                dcc.Loading(children=[
+                html.Div(id='result-section',children=dcc.Loading(children=[
                         
-                html.Div([html.H5(id='result-header', children="Results: Simulation based on cost allocation is shown below: ", style={'display': 'none'})], className=''),
+                html.Nav(id='result-header', children=[html.Span(children="Results: Simulation based on cost allocation is shown below: ",  className='navbar-brand mb-0 h1')], className='navbar navbar-dark bg-dark', style={'display': 'none'}),
 
-                html.Div(id='intermediate-values', style={'display': 'none'}),
+                html.Div([html.Div(id='intermediate-values', style={'display': 'none'}),
                 html.Div(id='allocation-results'),
 
                 html.H5(id='result-header-1', children='Overall Metrics:', className='my-3', style={'display': 'none'}),
@@ -106,16 +122,16 @@ app.layout = html.Div([
 
                 html.Div(id='agent-metrics', children=[], className='row'),
 
-                html.Div([html.Div(dcc.Graph(id='agent-idle-times', config={'displayModeBar': False}, figure=graphingRegion(225, margin={'l':0, 'b':0, 'r':0, 't':0})), className='col-4'),
-                          html.Div(dcc.Graph(id='agent-switches', config={'displayModeBar': False}, figure=graphingRegion(225, margin)), className='col-4'),
-                          html.Div(dcc.Graph(id='call-distribution', config={'displayModeBar': False}, figure=graphingRegion(225, margin)), className='col-4'),
-                          html.Div(dcc.Graph(id='call-costs', config={'displayModeBar': False}, figure=graphingRegion(225, margin)), className='col')
+                html.Div([html.Div(dcc.Graph(id='agent-idle-times', config={'displayModeBar': False}), className='col-4'),
+                          html.Div(dcc.Graph(id='agent-switches', config={'displayModeBar': False}), className='col-4'),
+                          html.Div(dcc.Graph(id='call-distribution', config={'displayModeBar': False}), className='col-4'),
+                          html.Div(dcc.Graph(id='call-costs', config={'displayModeBar': False}), className='col')
                          ], className='row'),
 
 
                 html.Br(), html.Br(),
                 
-                dash_table.DataTable(id='table')], type='cube'),
+                dash_table.DataTable(id='table')], className='mx-4')], type='cube'), style={'display': 'none'}),
 
             ], className='container my-4')
 
@@ -147,8 +163,40 @@ def overall_metrics_display(overall_metrics):
              html.Div([html.H6('Avg. Wait Time (sec):'), html.P(str(round(overall_metrics['avg_call_wait'],1)), className='display-4')], className='col mx-1 text-center alert alert-secondary')
              ]
 
+
+def remove_none_from_inputs(user_input):
+    if user_input == None:
+        user_input = 0.0
+    else:
+        user_input = float(user_input)
+    return user_input
 #-------------------------------
 #App Callback Functions
+    
+
+@app.callback(Output('cost-allocation-desc', 'children'),
+              [Input('allocation-method', 'value')])
+
+def show_call_allocation_desc(allocation_method):
+    if allocation_method == 1:
+        #Cost Based Calculations
+        return "Systematic cost based strategy uses an intelligent cost function to assign calls to agents. It is comprised of\
+                the following parameters, and you can change these parameters and their individual weights to allow the cost function\
+                to pay more or less attention to certain parameter. This startegy will allow you to optimize agent metrics across all\
+                agents, hence, reducing variations in these metrics across different agents. Simulation process may take longer time to run\
+                as the cost function is optimized for each call during the simulation run."
+    else: 
+        return "Random allocation strategy will randomly select available agents and assign calls to them. This is often used in many call allocation\
+                systems by default. This can result in high variations in different metrics across agents, and is not a suitable method if you want to\
+                ensure all agents receive fair treatment against various business goals you measure. The simulation process is quicker to run in this case\
+                as there is no cost function to optimize for every call."
+
+@app.callback(Output('result-section', 'style'),
+              [Input('run-simulation', 'n_clicks')])
+
+def show_result_section(n_clicks):
+    if n_clicks is not None:
+        return {'display': ''}
 
 @app.callback([Output('table', 'data'), Output('table', 'columns'),
                 Output('agent-metrics', 'children'),
@@ -162,15 +210,32 @@ def overall_metrics_display(overall_metrics):
                 Output('call-costs', 'figure')],
                 [Input('run-simulation', 'n_clicks')],
                 [State('allocation-method', 'value'),
-                 State('factor-2', 'value')]
+                 State('factor-switch', 'value'),
+                 State('agent-count', 'value'),
+                 State('call-level', 'value'),
+                 State('aht-range-from', 'value'),
+                 State('aht-range-to', 'value'),
+                 State('weight-factor-idle', 'value'),
+                 State('weight-factor-switch', 'value'),
+                 State('weight-factor-dist', 'value')]
               )
 
-def calculate_metrics(n_clicks, allocation_method, switching_cost):
+def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, call_level, aht_from, aht_to, weight_idle, weight_switch, weight_dist):
     
     if n_clicks is not None:
+        
+        weight_idle = remove_none_from_inputs(weight_idle)
+        weight_switch = remove_none_from_inputs(weight_switch)
+        weight_dist = remove_none_from_inputs(weight_dist)
+        switching_cost = remove_none_from_inputs(switching_cost)
+       
+        #Linear Increasing/Decreasing call average function
+        #-------------------
         intvl_avg_calls = list(range(0,24,1)) + list(range(24,0,-1))
         intvl_call_count = [np.random.poisson(x) for x in intvl_avg_calls]
-        max_intvl_calls = 2
+        
+        #Interval call scale
+        max_intvl_calls = int(call_level)
         intvl_avg_calls = [x*max_intvl_calls/max(intvl_avg_calls) for x in intvl_avg_calls]
         intvl_st_time_day = [(dt.datetime(2018,1,1,0,0,0) + dt.timedelta(minutes= +30*x))  for x in range(len(intvl_avg_calls))]
         intvl_st_time = [dt.time(x.hour, x.minute, x.second) for x in intvl_st_time_day]
@@ -179,11 +244,14 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost):
         
         #Inputs to be taken from user
         #--------------------
-        aht_range = [300, 400]
-        agent_count = 2
+        aht_range = [int(aht_from), int(aht_to)]
+        agent_count = int(agent_count)
         
         call_tbl = cgd.call_table(intvl_st_time, intvl_call_count, aht_range)
-        agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method)
+        agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
+                                    weight_idle=weight_idle, weight_dist=weight_dist,\
+                                    weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
+        
         if allocation_method == 1:
             costTable = agent_tbl[1]
             agent_tbl = agent_tbl[0]
@@ -261,7 +329,9 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost):
                 allocation_traces.append(go.Scatter(
                         x=costTable[costTable['agent_index']==agent_index].reset_index().index,
                         y=costTable[costTable['agent_index']==agent_index]['assignment_cost'],
-                        mode='lines+markers'))
+                        mode='lines+markers',
+                        name='Agent ' + str(agent_index)
+                        ))
             
             plot_costs_data = {'data': allocation_traces,
                          'layout': go.Layout()}

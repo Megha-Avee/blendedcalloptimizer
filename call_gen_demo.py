@@ -56,7 +56,7 @@ def call_table(intvl_st_time, intvl_call_count, aht_range):
 
 #Assumption 1: Agents are staffed 24x7:
 
-def agent_table(agent_count, call_table_df, use_cost_calculation=0):
+def agent_table(agent_count, call_table_df, use_cost_calculation=0, weight_idle=1, weight_dist=1, weight_switch=1, call_switch_agent_time=7.00):
     '''
     Input 1: 'agent_count': number of agents staffed
     Input 2: 'call_table_df': detailed call table with call start times and AHTs
@@ -72,7 +72,9 @@ def agent_table(agent_count, call_table_df, use_cost_calculation=0):
     for i in range(len(call_table_df)):
 
         agent_status = updateAgentStatus(call_table_df['call_start_time'][i], agent_status, agent_table_df)
-        agentPicked = assignCalltoAgent(agent_status, agent_table_df, next_call_details=call_table_df[i:i+1], use_cost_calculation=use_cost_calculation)
+        agentPicked = assignCalltoAgent(agent_status, agent_table_df, next_call_details=call_table_df[i:i+1],\
+                                        use_cost_calculation=use_cost_calculation, weight_idle=weight_idle, weight_dist=weight_dist,\
+                                        weight_switch=weight_switch, call_switch_agent_time=call_switch_agent_time)
         #print('agent picked is: ',agentPicked)
         #print('Agent Status List: ', agent_status)
         
@@ -139,7 +141,7 @@ def agentNextAvail(agent_status, agent_table_df):
 
 #Define a function to pick an agent randomly out of available agent at a point in time
 def assignCalltoAgent(agent_status, agent_table_df, use_cost_calculation=0,
-                      next_call_details=None, call_types=['inbound', 'outbound']):
+                      next_call_details=None, call_types=['inbound', 'outbound'], weight_idle=1, weight_dist=1, weight_switch=1, call_switch_agent_time=7.00):
     '''
     Picks an agent randomly out of available agent at a point in time
     '''
@@ -153,7 +155,7 @@ def assignCalltoAgent(agent_status, agent_table_df, use_cost_calculation=0,
                 pick_randomAgent = random.randint(0,len(agent_status)-1)
             return pick_randomAgent
     else:
-        return pickLeastCostlyAgent(agent_status, call_types, next_call_details, agent_tbl=agent_table_df)
+        return pickLeastCostlyAgent(agent_status, call_types, next_call_details, agent_tbl=agent_table_df, weight_idle=weight_idle, weight_dist=weight_dist, weight_switch=weight_switch, call_switch_agent_time=call_switch_agent_time)
 
 #Function to add time with time
 def timeAddition(baseTime, AddHourMinuteSecCSV=[0,0,0]):
