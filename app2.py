@@ -15,6 +15,7 @@ import dash_html_components as html
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 import dash_table
+import dash_daq
 import statistics as st
 
 from app import graphingRegion, margin
@@ -102,41 +103,69 @@ app.layout = html.Div([
                 ], className='row mt-2 card-deck mx-2'),
                 #End: Input Cost Paramenters
                 #------
-
-                html.Div([html.Button("Run Call Allocation Simulation", id='run-simulation', className='btn btn-outline-info btn-block mt-4')]),
-
-                html.Hr(),
-
-                html.Div(id='result-section',children=dcc.Loading(children=[
-                        
-                html.Nav(id='result-header', children=[html.Span(children="Results: Simulation based on cost allocation is shown below: ",  className='navbar-brand mb-0 h1')], className='navbar navbar-dark bg-dark', style={'display': 'none'}),
-
-                html.Div([html.Div(id='intermediate-values', style={'display': 'none'}),
-                html.Div(id='allocation-results'),
-
-                html.H5(id='result-header-1', children='Overall Metrics:', className='my-3', style={'display': 'none'}),
-
-                html.Div(id='overall-metrics', children=[], className='row'),
-
-                html.H5(id='result-header-2', children='Average Agent Metrics:', className='my-3', style={'display': 'none'}),
-
-                html.Div(id='agent-metrics', children=[], className='row'),
-
-                html.Div([html.Div(dcc.Graph(id='agent-idle-times', config={'displayModeBar': False}), className='col-4'),
-                          html.Div(dcc.Graph(id='agent-switches', config={'displayModeBar': False}), className='col-4'),
-                          html.Div(dcc.Graph(id='call-distribution', config={'displayModeBar': False}), className='col-4'),
-                          html.Div(dcc.Graph(id='call-costs', config={'displayModeBar': False}), className='col')
-                         ], className='row'),
-
-
-                html.Br(), html.Br(),
                 
-                dash_table.DataTable(id='table')], className='mx-4')], type='cube'), style={'display': 'none'}),
+                html.Div([html.Div("Auto-populate all inputs:", className='col-2 my-2 pt-2 pl-2 pr-0 text-muted small', style={'text-align': 'right'}),
+                          html.Div(children=dash_daq.BooleanSwitch(id='autopopulate-switch', on=False), className='col-2 my-2 pt-2 pr-2 pl-0')
+                          ], className='row'),
+
+                html.Div([html.Button("Run Call Allocation Simulation", id='run-simulation', className='btn btn-outline-info btn-block col'),
+                
+                          ], className='row'),
+
+#                html.Hr(),
+
+                html.Div(id='result-section',
+                         children=dcc.Loading(children=[
+                        
+                            html.Nav(id='result-header', children=[html.Span(id='result-header-title', children="Results of your call allocation process:", className='navbar-brand mb-0 h1')], className='navbar navbar-dark bg-dark mt-4', style={'display': 'none'}),
+            
+                            html.Div([html.Div(id='intermediate-values', style={'display': 'none'}),
+                                        html.Div(id='allocation-results'),
+                        
+                                        html.H5(id='result-header-1', children='Overall Metrics:', className='my-3', style={'display': 'none'}),
+                        
+                                        html.Div(id='overall-metrics', children=[], className='row'),
+                        
+                                        html.H5(id='result-header-2', children='Average Agent Metrics:', className='my-3', style={'display': 'none'}),
+                        
+                                        html.Div(id='agent-metrics', children=[], className='row'),
+                        
+                                        html.Div([html.Div(dcc.Graph(id='agent-idle-times', config={'displayModeBar': False}), className='col-4'),
+                                                  html.Div(dcc.Graph(id='agent-switches', config={'displayModeBar': False}), className='col-4'),
+                                                  html.Div(dcc.Graph(id='call-distribution', config={'displayModeBar': False}), className='col-4'),
+                                                  html.Div([html.Div(id='call-costs-chart', children=dcc.Graph(id='call-costs', config={'displayModeBar': False}), className='col my-4')]),
+                                                  html.Div([html.Label("Filter Cost Type:"), dcc.Dropdown(id='cost-filter', options=[
+                                                                                            {'label': 'Random Allocation', 'value': 0},
+                                                                                            {'label': 'Systematic Cost Based Allocation', 'value': 1}], value=1)
+                                                                        ], className='col')
+                                                 ], className='row'),
+                                        
+                                        html.Div(id='cost-design-button', children=[html.Button("See My Cost Function", id='see-cost-function', className='btn btn-outline-secondary btn-block col')], className='row mt-4'),
+                                        
+                                        html.Div(id='cost-design-block', children=[
+                                                
+                                        
+                                                html.Div([html.Nav(html.Span("Your Designed Algorithm:", className='navbar-brand mb-0 h1'), className='navbar navbar-dark bg-dark mt-4'),
+                                                          html.Div(dcc.Markdown(id='cost-function-text'), className='mt-3')
+                                                          ]),
+                                                ]),
+                        
+                        
+                                        html.Br(), html.Br(),
+                                        
+                                        html.Div(id='table', style={'display': 'none'})
+                                        
+                                    ], className='mx-4')
+                
+                        ], type='cube', fullscreen=False), style={'display': 'none'}),
 
             ], className='container my-4')
 
 
 #-------------------------------
+              
+                
+
 
 def metrics_display(agent_metrics):
     return [html.Div([html.H6('Number of Agents:'), html.P(str(len(agent_metrics)), className='display-4')], className='col mx-1 text-center alert alert-info'),
@@ -170,11 +199,48 @@ def remove_none_from_inputs(user_input):
     else:
         user_input = float(user_input)
     return user_input
+
+
+cost_function_design = '''###### Design you cost function for contact allocation in the following manner:
+
+For any new contact method (incbound/outbound connect) use these steps to determine the best agent to allocate the next call.
+
+ 1. Filter agents who are free when the next call (or other contact method) arrives. If no agent is free when the call arrives, then pick the agent
+who will be free to take the call next. This ensures low call wait time for the customers.
+
+
+ 2. If more than one agent is available to take the call, use the formula below to calculate the cost of assgining the next call to each of the available agents.
+ Further, pick the agent with the maximum cost at the time of allocation.
+ 
+   {0:.1%} x (Agent Idle Time/Total Signed-In Time) + {0:.1%} x (Call Type Switching Time/Brand Promise Wait Time) + {0:.1%} x (1 - (Percent Calls Handled of Each Type/Proportion of this Call Type for All Calls))
+
+    '''
 #-------------------------------
 #App Callback Functions
-    
 
-@app.callback(Output('cost-allocation-desc', 'children'),
+@app.callback([Output('cost-function-text', 'children'),
+               Output('cost-design-block', 'style'),
+               Output('cost-design-button', 'style')], 
+              [Input('see-cost-function', 'n_clicks'),
+               Input('weight-factor-idle', 'value'),
+               Input('weight-factor-switch', 'value'),
+               Input('weight-factor-dist', 'value'),
+               Input('allocation-method', 'value')
+               ])
+
+def show_Cost_function(n_clicks, wt_idle, wt_switch, wt_dist, allocation_method):
+    if n_clicks is not None and allocation_method==1:
+        return cost_function_design.format(wt_idle, wt_switch, wt_dist), {'display': ''}, {'display': ''}
+    else:
+        if allocation_method == 0:
+            return cost_function_design.format(0, 0, 0), {'display': 'none'}, {'display': 'none'}
+        else:
+            return cost_function_design.format(0, 0, 0), {'display': 'none'}, {'display': ''}
+            
+
+@app.callback([Output('cost-allocation-desc', 'children'),
+               Output('result-header-title', 'children'),
+               Output('call-costs-chart', 'style')],
               [Input('allocation-method', 'value')])
 
 def show_call_allocation_desc(allocation_method):
@@ -184,12 +250,16 @@ def show_call_allocation_desc(allocation_method):
                 the following parameters, and you can change these parameters and their individual weights to allow the cost function\
                 to pay more or less attention to certain parameter. This startegy will allow you to optimize agent metrics across all\
                 agents, hence, reducing variations in these metrics across different agents. Simulation process may take longer time to run\
-                as the cost function is optimized for each call during the simulation run."
+                as the cost function is optimized for each call during the simulation run.",\
+                "Results: Simulation based on cost allocation is shown below:",\
+                {'display': ''}
     else: 
         return "Random allocation strategy will randomly select available agents and assign calls to them. This is often used in many call allocation\
                 systems by default. This can result in high variations in different metrics across agents, and is not a suitable method if you want to\
                 ensure all agents receive fair treatment against various business goals you measure. The simulation process is quicker to run in this case\
-                as there is no cost function to optimize for every call."
+                as there is no cost function to optimize for every call.",\
+                "Results: Simulation based on random allocation is shown below:",\
+                {'display': 'none'}
 
 @app.callback(Output('result-section', 'style'),
               [Input('run-simulation', 'n_clicks')])
@@ -197,8 +267,10 @@ def show_call_allocation_desc(allocation_method):
 def show_result_section(n_clicks):
     if n_clicks is not None:
         return {'display': ''}
+    else:
+        return {'display': 'None'}
 
-@app.callback([Output('table', 'data'), Output('table', 'columns'),
+@app.callback([Output('table', 'children'),
                 Output('agent-metrics', 'children'),
                 Output('overall-metrics', 'children'),
                 Output('result-header', 'style'),
@@ -207,7 +279,7 @@ def show_result_section(n_clicks):
                 Output('agent-idle-times', 'figure'),
                 Output('agent-switches', 'figure'),
                 Output('call-distribution', 'figure'),
-                Output('call-costs', 'figure')],
+                ],
                 [Input('run-simulation', 'n_clicks')],
                 [State('allocation-method', 'value'),
                  State('factor-switch', 'value'),
@@ -255,6 +327,8 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
         if allocation_method == 1:
             costTable = agent_tbl[1]
             agent_tbl = agent_tbl[0]
+        else:
+            costTable = pd.DataFrame()
             
         agent_metrics = agentAggMetrics(agent_tbl)
         overall_metrics = overallMetrics(agent_tbl)
@@ -318,30 +392,47 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                     ))
 
         #-------------------
-        graphingRegionMargins = go.layout.Margin(l=80,r=10, b=20, t=40, pad=20)
+        graphingRegionMargins = go.layout.Margin(l=80,r=10, b=40, t=40, pad=20)
         
         #-------------------
         #Cost Allocation Chart
-        if allocation_method == 1:
-            allocation_traces = []
-        
-            for agent_index in costTable['agent_index'].drop_duplicates().tolist():
-                allocation_traces.append(go.Scatter(
-                        x=costTable[costTable['agent_index']==agent_index].reset_index().index,
-                        y=costTable[costTable['agent_index']==agent_index]['assignment_cost'],
-                        mode='lines+markers',
-                        name='Agent ' + str(agent_index)
-                        ))
-            
-            plot_costs_data = {'data': allocation_traces,
-                         'layout': go.Layout()}
-        else:
-            plot_costs_data ={}
+#        if allocation_method == 1:
+#            allocation_traces = []
+#        
+#            for agent_index in costTable['agent_index'].drop_duplicates().tolist():
+#                allocation_traces.append(go.Scatter(
+#                        x=costTable[costTable['agent_index']==agent_index].reset_index().index,
+#                        y=costTable[costTable['agent_index']==agent_index]['assignment_cost'],
+#                        mode='lines+markers',
+#                        name='Cost Function for: Agent ' + str(agent_index),
+#                        line = dict(width = 4),     
+#                        marker = dict(size = 8),
+#                        opacity = 0.8
+#                        ))
+#            
+#            plot_costs_data = {'data': allocation_traces,
+#                         'layout': go.Layout(title='Cost Function Iteration Over Calls',
+#                                             margin=graphingRegionMargins,
+#                                             font=dict(family='Arial', size=12),
+#                                             legend=dict(x=0.8,
+#                                                         y=1,
+#                                                         traceorder='normal',
+#                                                         font=dict(
+#                                                            family='sans-serif',
+#                                                            size=12,
+#                                                            color='#000'
+#                                                            ),
+#                                                        bgcolor='#E2E2E2',
+#                                                        bordercolor='#FFFFFF',
+#                                                        borderwidth=2
+#                                                    )
+#                                             )}
+#        else:
+#            plot_costs_data ={}
         
         
 
-        return agent_metrics.to_dict('records'),\
-                [{"name": i, "id": i} for i in agent_metrics.columns],\
+        return costTable.to_json(date_format='iso', orient='split'),\
                 agent_metrics_to_display, overall_metrics_to_display,\
                 {'display': ''},\
                 {'display': ''},\
@@ -358,7 +449,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                 {'data': switch_traces, 
                  'layout': go.Layout(
                          title='Number of Call Type switches',
-                         xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': True},
+                         xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
                          yaxis={'zeroline': True, 'showgrid': True, 'range': [0.9*min(agent_metrics['number_of_switches']), 1.1*max(agent_metrics['number_of_switches'])], 'tickformat': ""},
                          margin= graphingRegionMargins,
                          font=dict(family='Arial', size=12)
@@ -369,15 +460,16 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                          barmode='stack',
                          title='Call distribution by agent',
                          showlegend=False,
+                         xaxis={'showticklabels': False},
                          yaxis={'tickformat': ",.1%"},
                          margin= graphingRegionMargins,
                          font=dict(family='Arial', size=12)
-                         )},\
-                 plot_costs_data
+                         )}
     else:
-        return '','', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, {}
+        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}
 
-
+#------------------
+#Show/Hide the cost graph depending on type chosen
 @app.callback(Output('allocation-cost-tile', 'style'), 
               [Input('allocation-method', 'value')]
               )
@@ -388,7 +480,71 @@ def show_hide_tile(allocation_method):
     else:
         return {'display': 'none'}
 
+#------------------
+#Setting Defaults here
+@app.callback([Output('agent-count', 'value'),
+               Output('call-level', 'value'),
+               Output('aht-range-from', 'value'),
+               Output('aht-range-to', 'value'),
+               Output('factor-switch', 'value'),
+               Output('weight-factor-idle', 'value'),
+               Output('weight-factor-switch', 'value'),
+               Output('weight-factor-dist', 'value')],
+               [Input('autopopulate-switch', 'on')])
 
+def autopoulate_defaults(autopopulate_option):
+    if autopopulate_option==True:
+        return 2, 3, 100, 150, 7, 0.33, 0.33, 0.33
+    else:
+        return '', '', '', '', '', '', '', ''
+    
+    
+#Views of the cost table
+@app.callback(Output('call-costs', 'figure'),
+              [Input('table', 'children'),
+               Input('allocation-method', 'value')])
+
+def cost_table_views(cost_table_json, allocation_method):
+    #-------------------
+    #Cost Allocation Chart
+    if allocation_method == 1 and cost_table_json is not None:
+        costTable = pd.read_json(cost_table_json, orient='split')
+        allocation_traces = []
+    
+        for agent_index in costTable['agent_index'].drop_duplicates().tolist():
+            allocation_traces.append(go.Scatter(
+                    x=costTable[costTable['agent_index']==agent_index].reset_index().index,
+                    y=costTable[costTable['agent_index']==agent_index]['assignment_cost'],
+                    mode='lines+markers',
+                    name='Cost Function for: Agent ' + str(agent_index),
+                    line = dict(width = 4),     
+                    marker = dict(size = 8),
+                    opacity = 0.8
+                    ))
+        
+        plot_costs_data = {'data': allocation_traces,
+                     'layout': go.Layout(title='Cost Function Iteration Over Calls',
+#                                         margin=graphingRegionMargins,
+                                         font=dict(family='Arial', size=12),
+                                         legend=dict(x=0.8,
+                                                     y=1,
+                                                     traceorder='normal',
+                                                     font=dict(
+                                                        family='sans-serif',
+                                                        size=12,
+                                                        color='#000'
+                                                        ),
+                                                    bgcolor='#E2E2E2',
+                                                    bordercolor='#FFFFFF',
+                                                    borderwidth=2
+                                                )
+                                         )}
+                                                     
+        return plot_costs_data
+    else:
+        return {}
+    
+        
 
 #-------------------------------
 #External CSS Links
