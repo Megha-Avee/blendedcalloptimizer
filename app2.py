@@ -47,7 +47,7 @@ Created by: Aveedibya Dey | [Contact Me/Leave Feedback](https://aveedibyadey.typ
 
 app.layout = html.Div([
         
-                html.Div("Call Allocation Optimizer", className='container-fluid display-4 text-center', style={'height': '', 'padding-left': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
+                html.Div("Call Allocation Optimizer", className='container-fluid display-4 text-center mt-2', style={'height': '', 'padding-left': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
                 
                 html.Div("Design. Tweak. Optimize.", className='continer-fluid h3 mt-2 text-center', style={'height': '', 'padding-right': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
                 
@@ -188,7 +188,7 @@ app.layout = html.Div([
 
             ], className='container my-4 bg-white shadow py-3 rounded border'),
             
-            html.Div([html.I(className='fas fa-mug-hot'),
+            html.Div([html.Span([html.P("Designed with lots of "), html.I(className='fas fa-mug-hot')]),
                       dcc.Markdown(footnote_markdown)], className='text-center mt-3 pt-3 bg-light container-fluid', style={'height': '50px', 'font-size': '0.8em'})
        
         ], className='bg-light', style={'font-family': 'Ubuntu'})
