@@ -188,7 +188,7 @@ app.layout = html.Div([
 
             ], className='container my-4 bg-white shadow py-3 rounded border'),
 
-            html.Div([html.Span([html.Span("Designed with lots of ", style={'display': 'inline-block'}), html.I(className='fas fa-mug-hot', style={'display': 'inline-block'})]),
+            html.Div([html.Span([html.Span("Designed with lots of ", style={'display': 'inline-block', 'padding-right': '10'}), html.I(className='fas fa-mug-hot', style={'display': 'inline-block'})]),
                       dcc.Markdown(footnote_markdown)], className='text-center mt-3 pt-3 bg-light container-fluid', style={'height': '50px', 'font-size': '0.8em'})
 
         ], className='bg-light', style={'font-family': 'Ubuntu'})
