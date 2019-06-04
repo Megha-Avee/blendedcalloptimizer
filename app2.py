@@ -46,34 +46,34 @@ Created by: Aveedibya Dey | [Contact Me/Leave Feedback](https://aveedibyadey.typ
     '''
 
 app.layout = html.Div([
-        
+
                 html.Div("Call Allocation Optimizer", className='container-fluid display-4 text-center mt-2', style={'height': '', 'padding-left': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
-                
+
                 html.Div("Design. Tweak. Optimize.", className='continer-fluid h3 mt-2 text-center', style={'height': '', 'padding-right': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
-                
+
 #                html.Hr(style={'width': '20%', 'size': '5vh'}, className='mt-0 pt-0'),
-                
+
                 html.Div([
-                
-                
+
+
                 html.Nav([html.Span("1-Define Call Distribution: ", className='navbar-brand mb-0 h1')], className='navbar navbar-dark bg-dark', style={'background-color': 'rgba()'}),
-                
+
                 html.Div([html.H6("Enter Simulation Parameters:", className='card-title col-12'),
                                                      html.Div([html.Label('Number of Agents:'),
-                                                               dcc.Input(id='agent-count', type='number', step=1, placeholder='Example = 3', className='form-control')], className='form-group col-4'),
+                                                               dcc.Input(id='agent-count', type='number', step=1, placeholder='Example = 3', className='form-control')], className='form-group col-sm-4'),
                                                     html.Div([html.Label('Peak Call Count (half-hr interval):'),
-                                                               dcc.Input(id='call-level', type='number', min=0, step=1, placeholder='Example = 10', className='form-control')], className='form-group col-4'),
+                                                               dcc.Input(id='call-level', type='number', min=0, step=1, placeholder='Example = 10', className='form-control')], className='form-group col-sm-4'),
                                                     html.Div([html.Label('AHT Range:'),html.Br(),
                                                                dcc.Input(id='aht-range-from', type='number', step=1, placeholder='From', className='form-control', style={'width': '42%', 'display': 'inline-block'}),
                                                                html.P(" - ", style={'text-align': 'center', 'width': '5%', 'display': 'inline-block'}),
-                                                                dcc.Input(id='aht-range-to', type='number', step=1, placeholder='To', className='form-control', style={'width': '42%', 'display': 'inline-block'})], className='form-group col-4')
+                                                                dcc.Input(id='aht-range-to', type='number', step=1, placeholder='To', className='form-control', style={'width': '42%', 'display': 'inline-block'})], className='form-group col-sm-4')
                         ], className='row mt-2 mx-2'),
 
                 html.Div([html.H6("Define Call Distirbutions:", className='card-title col-12'),
                                                      html.Div([html.Label('Call Types (Enter names separated by commas):'),
-                                                               dcc.Input(id='call-types', type='text', placeholder='Default = Inbound, Outbound', disabled=True, className='form-control')], className='form-group col-6'),
+                                                               dcc.Input(id='call-types', type='text', placeholder='Default = Inbound, Outbound', disabled=True, className='form-control')], className='form-group col-sm-6'),
                                                     html.Div([html.Label('Call Type Distributions (Fractional values separated by commas):'),
-                                                               dcc.Input(id='call-proportion', type='text', placeholder='Default = 0.3, 0.7', disabled=True, className='form-control')], className='form-group col-6'),
+                                                               dcc.Input(id='call-proportion', type='text', placeholder='Default = 0.3, 0.7', disabled=True, className='form-control')], className='form-group col-sm-6'),
                         ], className='row mt-2 mx-2'),
 #                html.Hr(),
 
@@ -86,7 +86,7 @@ app.layout = html.Div([
                                             {'label': 'Random Allocation', 'value': 0},
                                             {'label': 'Systematic Cost Based Allocation', 'value': 1}], value=1)], className='col'), className='row mt-2 mx-2'),
 
-                html.Div(html.Div([html.H6("Your Call Allocation Strategy:"), 
+                html.Div(html.Div([html.H6("Your Call Allocation Strategy:"),
                                   html.P(id="cost-allocation-desc")] #--> Allocation Strategy Description
                                   , className='col'), className='row mx-2 mt-4'),
 
@@ -120,33 +120,33 @@ app.layout = html.Div([
                 ], className='row mt-2 card-deck mx-2'),
                 #End: Input Cost Paramenters
                 #------
-                
+
                 html.Div([html.Div("Auto-populate all inputs:", className='col-2 my-2 pt-2 pl-2 pr-0 text-muted small', style={'text-align': 'right'}),
                           html.Div(children=dash_daq.BooleanSwitch(id='autopopulate-switch', on=False), className='col-2 my-2 pt-2 pr-2 pl-0')
                           ], className='row'),
 
                 html.Div([html.Button("Run Call Allocation Simulation", id='run-simulation', className='btn btn-outline-info btn-block col'),
-                
+
                           ], className='row mx-2'),
 
 #                html.Hr(),
 
                 html.Div(id='result-section',
                          children=dcc.Loading(children=[
-                        
+
                             html.Nav(id='result-header', children=[html.Span(id='result-header-title', children="Results of your call allocation process:", className='navbar-brand mb-0 h1')], className='navbar navbar-dark bg-dark mt-4', style={'display': 'none'}),
-            
+
                             html.Div([html.Div(id='intermediate-values', style={'display': 'none'}),
                                         html.Div(id='allocation-results'),
-                        
+
                                         html.H5(id='result-header-1', children='Overall Metrics:', className='my-3', style={'display': 'none'}),
-                        
+
                                         html.Div(id='overall-metrics', children=[], className='row'),
-                        
+
                                         html.H5(id='result-header-2', children='Average Agent Metrics:', className='my-3', style={'display': 'none'}),
-                        
+
                                         html.Div(id='agent-metrics', children=[], className='row'),
-                        
+
                                         html.Div([html.Div(dcc.Graph(id='agent-idle-times', config={'displayModeBar': False}), className='col-4'),
                                                   html.Div(dcc.Graph(id='agent-switches', config={'displayModeBar': False}), className='col-4'),
                                                   html.Div(dcc.Graph(id='call-distribution', config={'displayModeBar': False}), className='col-4'),
@@ -166,31 +166,31 @@ app.layout = html.Div([
                                                                     ], className='my-2')
                                                             ], className='col mt-5')
                                                  ], className='row'),
-                                        
+
                                         html.Div(id='cost-design-button', children=[html.Button("See My Cost Function", id='see-cost-function', className='btn btn-outline-secondary btn-block col')], className='row mt-4 mx-2'),
-                                        
+
                                         html.Div(id='cost-design-block', children=[
-                                                
-                                        
+
+
                                                 html.Div([html.Nav(html.Span("Your Designed Algorithm:", className='navbar-brand mb-0 h1'), className='navbar navbar-dark bg-dark mt-4'),
                                                           html.Div(dcc.Markdown(id='cost-function-text'), className='mt-3')
                                                           ]),
                                                 ]),
-                        
-                        
+
+
                                         html.Br(), html.Br(),
-                                        
+
                                         html.Div(id='table', style={'display': 'none'})
-                                        
+
                                     ], className='mx-4')
-                
+
                         ], type='cube', fullscreen=False), style={'display': 'none'}),
 
             ], className='container my-4 bg-white shadow py-3 rounded border'),
-            
-            html.Div([html.Span([html.P("Designed with lots of "), html.I(className='fas fa-mug-hot')]),
+
+            html.Div([html.Span([html.P("Designed with lots of ", style={'display': 'inline-block'}), html.I(className='fas fa-mug-hot', style={'display': 'inline-block'})]),
                       dcc.Markdown(footnote_markdown)], className='text-center mt-3 pt-3 bg-light container-fluid', style={'height': '50px', 'font-size': '0.8em'})
-       
+
         ], className='bg-light', style={'font-family': 'Ubuntu'})
 
 
@@ -241,7 +241,7 @@ who will be free to take the call next. This ensures low call wait time for the 
 
  2. If more than one agent is available to take the call, use the formula below to calculate the cost of assgining the next call to each of the available agents.
  Further, pick the agent with the maximum cost at the time of allocation.
- 
+
    {0:.1%} x (Agent Idle Time/Total Signed-In Time) + {0:.1%} x (Call Type Switching Time/Brand Promise Wait Time) + {0:.1%} x (1 - (Percent Calls Handled of Each Type/Proportion of this Call Type for All Calls))
 
     '''
@@ -250,7 +250,7 @@ who will be free to take the call next. This ensures low call wait time for the 
 
 @app.callback([Output('cost-function-text', 'children'),
                Output('cost-design-block', 'style'),
-               Output('cost-design-button', 'style')], 
+               Output('cost-design-button', 'style')],
               [Input('see-cost-function', 'n_clicks'),
                Input('weight-factor-idle', 'value'),
                Input('weight-factor-switch', 'value'),
@@ -266,7 +266,7 @@ def show_Cost_function(n_clicks, wt_idle, wt_switch, wt_dist, allocation_method)
             return cost_function_design.format(0, 0, 0), {'display': 'none'}, {'display': 'none'}
         else:
             return cost_function_design.format(0, 0, 0), {'display': 'none'}, {'display': ''}
-            
+
 
 @app.callback([Output('cost-allocation-desc', 'children'),
                Output('result-header-title', 'children'),
@@ -283,7 +283,7 @@ def show_call_allocation_desc(allocation_method):
                 as the cost function is optimized for each call during the simulation run.",\
                 "Results: Simulation based on cost allocation is shown below:",\
                 {'display': ''}
-    else: 
+    else:
         return "Random allocation strategy will randomly select available agents and assign calls to them. This is often used in many call allocation\
                 systems by default. This can result in high variations in different metrics across agents, and is not a suitable method if you want to\
                 ensure all agents receive fair treatment against various business goals you measure. The simulation process is quicker to run in this case\
@@ -323,19 +323,19 @@ def show_result_section(n_clicks):
               )
 
 def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, call_level, aht_from, aht_to, weight_idle, weight_switch, weight_dist):
-    
+
     if n_clicks is not None:
-        
+
         weight_idle = remove_none_from_inputs(weight_idle)
         weight_switch = remove_none_from_inputs(weight_switch)
         weight_dist = remove_none_from_inputs(weight_dist)
         switching_cost = remove_none_from_inputs(switching_cost)
-       
+
         #Linear Increasing/Decreasing call average function
         #-------------------
         intvl_avg_calls = list(range(0,24,1)) + list(range(24,0,-1))
         intvl_call_count = [np.random.poisson(x) for x in intvl_avg_calls]
-        
+
         #Interval call scale
         max_intvl_calls = int(call_level)
         intvl_avg_calls = [x*max_intvl_calls/max(intvl_avg_calls) for x in intvl_avg_calls]
@@ -343,33 +343,33 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
         intvl_st_time = [dt.time(x.hour, x.minute, x.second) for x in intvl_st_time_day]
         intvl_call_count = [np.random.poisson(x) for x in intvl_avg_calls]
         intvl_call_count = [np.random.poisson(x) for x in intvl_avg_calls]
-        
+
         #Inputs to be taken from user
         #--------------------
         aht_range = [int(aht_from), int(aht_to)]
         agent_count = int(agent_count)
-        
+
         call_tbl = cgd.call_table(intvl_st_time, intvl_call_count, aht_range)
         agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
                                     weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
-        
+
         if allocation_method == 1:
             costTable = agent_tbl[1]
             agent_tbl = agent_tbl[0]
         else:
             costTable = pd.DataFrame()
-            
+
         agent_metrics = agentAggMetrics(agent_tbl)
         overall_metrics = overallMetrics(agent_tbl)
 
         agent_metrics_to_display = metrics_display(agent_metrics)
         overall_metrics_to_display = overall_metrics_display(overall_metrics)
-        
+
         #plot agent metrics
         #-------------------
         idle_traces = []
-        
+
         idle_traces.append(go.Bar(
                 x=agent_metrics['agent_index'],
                 y=agent_metrics['idle_time'],
@@ -384,15 +384,15 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                 name="Agent Idle Times (% of total time)",
                 opacity=0.6
                 ))
-                        
+
         #-------------------
         #plot call distribution
         call_types = ['inbound', 'outbound']
-        
+
         #plot call switches
         #-------------------
         switch_traces = []
-        
+
         switch_traces.append(go.Bar(
                 x=agent_metrics['agent_index'],
                 y=agent_metrics['number_of_switches'],
@@ -410,7 +410,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
         #-------------------
         #plot call distributions
         dist_traces = []
-        
+
         for calltypes in call_types:
             dist_traces.append(go.Bar(
                     x=agent_metrics['agent_index'],
@@ -423,15 +423,15 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
 
         #-------------------
         graphingRegionMargins = go.layout.Margin(l=80,r=10, b=40, t=40, pad=20)
-        
-        
+
+
 
         return costTable.to_json(date_format='iso', orient='split'),\
                 agent_metrics_to_display, overall_metrics_to_display,\
                 {'display': ''},\
                 {'display': ''},\
                 {'display': ''},\
-                {'data': idle_traces, 
+                {'data': idle_traces,
                  'layout': go.Layout(
                          title='Agent Idle Time (% of overall time)',
                          xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
@@ -440,7 +440,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                          font=dict(family='Ubuntu', size=12)
                          )
                  },\
-                {'data': switch_traces, 
+                {'data': switch_traces,
                  'layout': go.Layout(
                          title='Number of Call Type switches',
                          xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
@@ -464,7 +464,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
 
 #------------------
 #Show/Hide the cost graph depending on type chosen
-@app.callback(Output('allocation-cost-tile', 'style'), 
+@app.callback(Output('allocation-cost-tile', 'style'),
               [Input('allocation-method', 'value')]
               )
 
@@ -491,8 +491,8 @@ def autopoulate_defaults(autopopulate_option):
         return 2, 3, 100, 150, 7, 0.33, 0.33, 0.33
     else:
         return '', '', '', '', '', '', '', ''
-    
-    
+
+
 #Views of the cost table
 @app.callback([Output('call-costs', 'figure'),
                Output('cost-type-tile', 'style'),
@@ -512,30 +512,30 @@ def cost_table_views(cost_table_json, allocation_method, cost_filter, cost_type,
         print("---->>---", cost_table_json)
         costTable = pd.read_json(cost_table_json, orient='split')
         allocation_traces = []
-            
+
         if filter_by_agent is not None:
             if set(filter_by_agent) <= set(costTable['agent_index'].drop_duplicates().tolist()):
                 agent_list_to_iterate_on = filter_by_agent
         else:
             agent_list_to_iterate_on = costTable['agent_index'].drop_duplicates().tolist()
-            
+
         for agent_index in agent_list_to_iterate_on:
-            
+
             if cost_filter == 0:
                 cost_to_display = costTable[costTable['agent_index']==agent_index]['assignment_cost']
             else:
                 cost_to_display = costTable[costTable['agent_index']==agent_index][cost_type]
-                
+
             allocation_traces.append(go.Scatter(
                     x=costTable[costTable['agent_index']==agent_index].reset_index().index,
                     y=cost_to_display,
                     mode='lines+markers',
                     name='Agent ' + str(agent_index),
-                    line = dict(width = 4),     
+                    line = dict(width = 4),
                     marker = dict(size = 8),
                     opacity = 0.8
                     ))
-        
+
         plot_costs_data = {'data': allocation_traces,
                      'layout': go.Layout(title='Cost Function Iteration Over Calls',
                                          margin=go.layout.Margin(l=80,r=10, b=40, t=40, pad=20),
@@ -554,11 +554,11 @@ def cost_table_views(cost_table_json, allocation_method, cost_filter, cost_type,
                                                     borderwidth=2
                                                 )
                                          )}
-                                                     
+
         return plot_costs_data, {'display': ''}, {'display': ''}, {'display': ''}
     else:
         return {'data': []}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}
-    
+
 #Agent Filtering
 @app.callback(Output('filter-agent', 'options'),
               [Input('table', 'children'),
@@ -571,15 +571,15 @@ def populate_agent_filter(cost_table_json, allocation_method):
     if allocation_method == 1 and cost_table_json is not None and cost_table_json != '':
         costTable = pd.read_json(cost_table_json, orient='split')
         filter_agent_options = []
-        
+
         for agent_index in costTable['agent_index'].drop_duplicates().tolist():
             filter_agent_options.append({'label': 'Agent ' + str(agent_index), 'value': agent_index})
-            
+
         return filter_agent_options
-    else: 
+    else:
         return []
-            
-            
+
+
 
 
 
