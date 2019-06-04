@@ -59,6 +59,7 @@ def calculateAgentCosts(agent_costs, call_types, next_call, agent_tbl, call_swit
         
 #        len(filtered_agent_tbl[filtered_agent_tbl['call_type']==call_types[call_type_index]])
         agent_costs['call_skewness'][agent_index] = call_distribution_list
+        
         if True in call_aht_sum.index.isin([agent_index]):
             agent_costs['idle_time'][agent_index] = 1 - call_aht_sum[agent_index]/86400
         else:
@@ -85,6 +86,9 @@ def calculateAgentCosts(agent_costs, call_types, next_call, agent_tbl, call_swit
                 switch_cost_factor = call_switch_agent_time/call_bp_time
         
         #print(switch_cost_factor)
+        agent_costs['switch_cost'][agent_index] = switch_cost_factor*weight_switch
+        agent_costs['idle_cost'][agent_index] = idleness_cost_factor*weight_idle
+        agent_costs['skewness_cost'][agent_index] = distribution_cost_factor*weight_dist
         agent_costs['assignment_cost'][agent_index] = distribution_cost_factor*weight_dist + idleness_cost_factor*weight_idle + switch_cost_factor*weight_switch
     
     #print("---->>--Agent Costs calculated:\n", agent_costs)
@@ -114,7 +118,7 @@ def pickLeastCostlyAgent(agent_status, call_types, next_call,
     """
     """
     agent_costs = pd.DataFrame(columns=['agent_index', 'call_skewness', 'idle_time', \
-                                    'last_call_type', 'agent_status', 'assignment_cost'])  
+                                    'last_call_type', 'agent_status', 'idle_cost', 'switch_cost', 'skewness_cost', 'assignment_cost'])  
     
     agent_costs['agent_index'] = range(len(agent_status))
     agent_costs['agent_status'] = agent_status

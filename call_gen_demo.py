@@ -67,7 +67,7 @@ def agent_table(agent_count, call_table_df, use_cost_calculation=0, weight_idle=
     agent_table_df = pd.DataFrame(columns=col_name)
 
     costTable = pd.DataFrame(columns=['agent_index', 'call_skewness', 'idle_time', \
-                                    'last_call_type', 'agent_status', 'assignment_cost']) 
+                                    'last_call_type', 'agent_status', 'idle_cost', 'switch_cost', 'skewness_cost', 'assignment_cost']) 
 
     for i in range(len(call_table_df)):
 
