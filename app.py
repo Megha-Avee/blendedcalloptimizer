@@ -24,7 +24,7 @@ app = dash.Dash(meta_tags=[{
         {'name': 'author',
          'content': 'Aveedibya Dey'}])
 app.title = 'Operations Simulator'
-server = app.server
+#server = app.server
 
 #-------------------------------
 #Define Formatting Stuff
