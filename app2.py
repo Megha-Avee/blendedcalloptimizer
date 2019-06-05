@@ -280,7 +280,7 @@ def show_call_allocation_desc(allocation_method):
         #Cost Based Calculations
         return "Systematic cost based strategy uses an intelligent cost function to assign calls to agents. It is comprised of\
                 the following parameters, and you can change these parameters and their individual weights to allow the cost function\
-                to pay more or less attention to certain parameter. This startegy will allow you to optimize agent metrics across all\
+                to pay more or less attention to certain parameter. This strategy will allow you to optimize agent metrics across all\
                 agents, hence, reducing variations in these metrics across different agents. Simulation process may take longer time to run\
                 as the cost function is optimized for each call during the simulation run.",\
                 "Results: Simulation based on cost allocation is shown below:",\
