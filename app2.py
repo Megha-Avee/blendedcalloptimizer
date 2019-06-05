@@ -24,12 +24,12 @@ from app import graphingRegion, margin
 import call_gen_demo as cgd
 from call_generator_distribution import agentAggMetrics, overallMetrics
 
-app = dash.Dash()
+app = dash.Dash(meta_tags=[{'name':"viewport", 'content':"width=device-width, initial-scale=1"}])
 app.title = 'Blended Call Optimizer'
 
 server = app.server
 
-#app.head = [
+# app.head = [
 #    html.Link(
 #        href='https://kit.fontawesome.com/dab9468bc6.js',
 #        type='text/javascript'
