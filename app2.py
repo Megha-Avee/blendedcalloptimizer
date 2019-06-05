@@ -60,20 +60,20 @@ app.layout = html.Div([
 
                 html.Div([html.H6("Enter Simulation Parameters:", className='card-title col-12'),
                                                      html.Div([html.Label('Number of Agents:'),
-                                                               dcc.Input(id='agent-count', type='number', step=1, placeholder='Example = 3', className='form-control')], className='form-group col-sm-4'),
+                                                               dcc.Input(id='agent-count', type='number', step=1, placeholder='Example = 3', className='form-control')], className='form-group col-md-4'),
                                                     html.Div([html.Label('Peak Call Count (half-hr interval):'),
-                                                               dcc.Input(id='call-level', type='number', min=0, step=1, placeholder='Example = 10', className='form-control')], className='form-group col-sm-4'),
+                                                               dcc.Input(id='call-level', type='number', min=0, step=1, placeholder='Example = 10', className='form-control')], className='form-group col-md-4'),
                                                     html.Div([html.Label('AHT Range:'),html.Br(),
                                                                dcc.Input(id='aht-range-from', type='number', step=1, placeholder='From', className='form-control', style={'width': '42%', 'display': 'inline-block'}),
                                                                html.P(" - ", style={'text-align': 'center', 'width': '5%', 'display': 'inline-block'}),
-                                                                dcc.Input(id='aht-range-to', type='number', step=1, placeholder='To', className='form-control', style={'width': '42%', 'display': 'inline-block'})], className='form-group col-sm-4')
+                                                                dcc.Input(id='aht-range-to', type='number', step=1, placeholder='To', className='form-control', style={'width': '42%', 'display': 'inline-block'})], className='form-group col-md-4')
                         ], className='row mt-2 mx-2'),
 
                 html.Div([html.H6("Define Call Distirbutions:", className='card-title col-12'),
                                                      html.Div([html.Label('Call Types (Enter names separated by commas):'),
-                                                               dcc.Input(id='call-types', type='text', placeholder='Default = Inbound, Outbound', disabled=True, className='form-control')], className='form-group col-sm-6'),
+                                                               dcc.Input(id='call-types', type='text', placeholder='Default = Inbound, Outbound', disabled=True, className='form-control')], className='form-group col-md-6'),
                                                     html.Div([html.Label('Call Type Distributions (Fractional values separated by commas):'),
-                                                               dcc.Input(id='call-proportion', type='text', placeholder='Default = 0.3, 0.7', disabled=True, className='form-control')], className='form-group col-sm-6'),
+                                                               dcc.Input(id='call-proportion', type='text', placeholder='Default = 0.3, 0.7', disabled=True, className='form-control')], className='form-group col-md-6'),
                         ], className='row mt-2 mx-2'),
 #                html.Hr(),
 
