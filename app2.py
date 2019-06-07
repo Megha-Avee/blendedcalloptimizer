@@ -556,8 +556,10 @@ def cost_table_views(cost_table_json, allocation_method, cost_filter, cost_type,
 
             if cost_filter == 0:
                 cost_to_display = costTable[costTable['agent_index']==agent_index]['assignment_cost']
+                display_type_of_cost_tile = {'display': 'none'}
             else:
                 cost_to_display = costTable[costTable['agent_index']==agent_index][cost_type]
+                display_type_of_cost_tile = {'display': ''}
 
             allocation_traces.append(go.Scatter(
                     x=costTable[costTable['agent_index']==agent_index].reset_index().index,
@@ -588,7 +590,7 @@ def cost_table_views(cost_table_json, allocation_method, cost_filter, cost_type,
                                                 )
                                          )}
 
-        return plot_costs_data, {'display': ''}, {'display': ''}, {'display': ''}
+        return plot_costs_data, display_type_of_cost_tile, {'display': ''}, {'display': ''}
     else:
         return {'data': []}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}
 
