@@ -305,6 +305,8 @@ def show_result_section(n_clicks):
     else:
         return {'display': 'None'}
 
+agent_tbl = None
+
 @app.callback([Output('table', 'children'),
                 Output('agent-metrics', 'children'),
                 Output('overall-metrics', 'children'),
@@ -362,7 +364,9 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
         #-------------------------------
 
         call_tbl = cgd.call_table(intvl_st_time, intvl_call_count, aht_range)
-        agent_tbl = q.enqueue(cgd.agent_table, int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
+        if agent_tbl == None:
+            global agent_tbl
+            agent_tbl = q.enqueue(cgd.agent_table, int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
                                     weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
 
