@@ -362,10 +362,9 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
         #-------------------------------
 
         call_tbl = cgd.call_table(intvl_st_time, intvl_call_count, aht_range)
-        agent_tbl = q.enqueue(cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
+        agent_tbl = q.enqueue(cgd.agent_table, int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
-                                    weight_switch=weight_switch, call_switch_agent_time=int(switching_cost)),\
-                                    'http://heroku.com')
+                                    weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
 
         if allocation_method == 1:
             costTable = agent_tbl[1]
