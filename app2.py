@@ -129,7 +129,7 @@ app.layout = html.Div([
                           ], className='row'),
 
                 html.Div([html.Button("Run Call Allocation Simulation", id='run-simulation', className='btn btn-outline-info btn-block col'),
-
+                            html.I(id='wait-for-results', className='fas fa-dharmachakra fa-spin', style={'display': 'none'})
                           ], className='row mx-2'),
 
 #                html.Hr(),
@@ -191,8 +191,8 @@ app.layout = html.Div([
 
             ], className='container my-4 bg-white shadow py-3 rounded border'),
 
-            html.Div([html.Span([html.Span("Designed with lots of ", style={'display': 'inline-block', 'padding-right': '10px'}),
-                                 html.I(className='fas fa-mug-hot', style={'display': 'inline-block'})
+            html.Div([html.Span([html.Span("Designed with lots of ", style={'display': 'inline-block', 'padding-right': '5px'}),
+                                 html.I(className='fas fa-mug-hot', style={'display': 'inline-block', 'padding-bottom': '2px'})
                                  ]),
                       dcc.Markdown(footnote_markdown)], className='text-center mt-3 pt-3 bg-light container-fluid', style={'height': '50px', 'font-size': '0.8em'})
 
@@ -260,17 +260,18 @@ who will be free to take the call next. This ensures low call wait time for the 
                Input('weight-factor-idle', 'value'),
                Input('weight-factor-switch', 'value'),
                Input('weight-factor-dist', 'value'),
-               Input('allocation-method', 'value')
+               Input('allocation-method', 'value'),
+               Input('result-header', 'style')
                ])
 
-def show_Cost_function(n_clicks, wt_idle, wt_switch, wt_dist, allocation_method):
+def show_Cost_function(n_clicks, wt_idle, wt_switch, wt_dist, allocation_method, result_style):
     if n_clicks is not None and allocation_method==1:
-        return cost_function_design.format(wt_idle, wt_switch, wt_dist), {'display': ''}, {'display': ''}
+        return cost_function_design.format(wt_idle, wt_switch, wt_dist), {'display': ''}, {'display': result_style['display']}
     else:
         if allocation_method == 0:
             return cost_function_design.format(0, 0, 0), {'display': 'none'}, {'display': 'none'}
         else:
-            return cost_function_design.format(0, 0, 0), {'display': 'none'}, {'display': ''}
+            return cost_function_design.format(0, 0, 0), {'display': 'none'}, {'display': result_style['display']}
 
 
 @app.callback([Output('cost-allocation-desc', 'children'),
@@ -317,7 +318,8 @@ agent_tbl = None
                 Output('agent-idle-times', 'figure'),
                 Output('agent-switches', 'figure'),
                 Output('call-distribution', 'figure'),
-                Output('run-simulation', 'children')
+                Output('run-simulation', 'children'),
+                Output('wait-for-results', 'style')
                 ],
                 [Input('run-simulation', 'n_clicks')],
                 [State('allocation-method', 'value'),
@@ -374,7 +376,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
                                     weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
 
-            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'We are running your simulation. Click again to check for output in few seconds.'
+            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'We are running your simulation. Click again to check for output in few seconds.', {'display': 'inline-block'}
 
         else:
             print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
@@ -488,9 +490,9 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                              margin= graphingRegionMargins,
                              font=dict(family='Ubuntu', size=12)
                              )},\
-                    'Re-Run Call Allocation Simulation'
+                    'Re-Run Call Allocation Simulation', {'display': 'none'}
     else:
-        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Run Call Allocation Simulation'
+        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Run Call Allocation Simulation', {'display': 'none'}
 
 #------------------
 #Show/Hide the cost graph depending on type chosen
