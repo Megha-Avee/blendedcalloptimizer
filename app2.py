@@ -61,7 +61,7 @@ app.layout = html.Div([
 
                 html.Nav([html.Span("1-Define Call Distribution: ", className='navbar-brand mb-0 h1')], className='navbar navbar-dark bg-dark', style={'background-color': 'rgba()'}),
 
-                html.Div([html.H6("Enter Simulation Parameters:", className='card-title col-12'),
+                html.Div([html.H6("Enter Simulation Parameters:", className='card-title col-md-12'),
                                                      html.Div([html.Label('Number of Agents:'),
                                                                dcc.Input(id='agent-count', type='number', step=1, placeholder='Example = 3', className='form-control')], className='form-group col-md-4'),
                                                     html.Div([html.Label('Peak Call Count (half-hr interval):'),
@@ -72,7 +72,7 @@ app.layout = html.Div([
                                                                 dcc.Input(id='aht-range-to', type='number', step=1, placeholder='To', className='form-control', style={'width': '42%', 'display': 'inline-block'})], className='form-group col-md-4')
                         ], className='row mt-2 mx-2'),
 
-                html.Div([html.H6("Define Call Distirbutions:", className='card-title col-12'),
+                html.Div([html.H6("Define Call Distirbutions:", className='card-title col-md-12'),
                                                      html.Div([html.Label('Call Types (Enter names separated by commas):'),
                                                                dcc.Input(id='call-types', type='text', placeholder='Default = Inbound, Outbound', disabled=True, className='form-control')], className='form-group col-md-6'),
                                                     html.Div([html.Label('Call Type Distributions (Fractional values separated by commas):'),
@@ -124,8 +124,8 @@ app.layout = html.Div([
                 #End: Input Cost Paramenters
                 #------
 
-                html.Div([html.Div("Auto-populate all inputs:", className='col-2 my-2 pt-2 pl-2 pr-0 text-muted small', style={'text-align': 'right'}),
-                          html.Div(children=dash_daq.BooleanSwitch(id='autopopulate-switch', on=False), className='col-2 my-2 pt-2 pr-2 pl-0')
+                html.Div([html.Div("Auto-populate all inputs:", className='col-md-2 my-2 pt-2 pl-2 pr-0 text-muted small', style={'text-align': 'right'}),
+                          html.Div(children=dash_daq.BooleanSwitch(id='autopopulate-switch', on=False), className='col-md-2 my-2 pt-2 pr-2 pl-0')
                           ], className='row'),
 
                 html.Div([html.Button("Run Call Allocation Simulation", id='run-simulation', className='btn btn-outline-info btn-block col'),
@@ -150,10 +150,10 @@ app.layout = html.Div([
 
                                         html.Div(id='agent-metrics', children=[], className='row'),
 
-                                        html.Div([html.Div(dcc.Graph(id='agent-idle-times', config={'displayModeBar': False}), className='col-4'),
-                                                  html.Div(dcc.Graph(id='agent-switches', config={'displayModeBar': False}), className='col-4'),
-                                                  html.Div(dcc.Graph(id='call-distribution', config={'displayModeBar': False}), className='col-4'),
-                                                  html.Div([html.Div(id='call-costs-chart', children=dcc.Graph(id='call-costs', config={'displayModeBar': False}))], className='col-9 my-4'),
+                                        html.Div(id='result-chart-area', children=[html.Div(dcc.Graph(id='agent-idle-times', config={'displayModeBar': False}), className='col-md-4'),
+                                                  html.Div(dcc.Graph(id='agent-switches', config={'displayModeBar': False}), className='col-md-4'),
+                                                  html.Div(dcc.Graph(id='call-distribution', config={'displayModeBar': False}), className='col-md-4'),
+                                                  html.Div([html.Div(id='call-costs-chart', children=dcc.Graph(id='call-costs', config={'displayModeBar': False}))], className='col-md-9 my-4'),
                                                   html.Div([html.Div(id='cost-view-tile', children=[html.Label("Filter Cost Type:"),
                                                                       dcc.Dropdown(id='cost-filter', options=[
                                                                                             {'label': 'Total Cost', 'value': 0},
@@ -313,6 +313,7 @@ agent_tbl = None
                 Output('result-header', 'style'),
                 Output('result-header-1', 'style'),
                 Output('result-header-2', 'style'),
+                Output('result-chart-area', 'style'),
                 Output('agent-idle-times', 'figure'),
                 Output('agent-switches', 'figure'),
                 Output('call-distribution', 'figure'),
@@ -373,7 +374,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
                                     weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
 
-            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'We are running your simulation. Click again to check for output in few seconds.'
+            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'We are running your simulation. Click again to check for output in few seconds.'
 
         else:
             print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
@@ -458,6 +459,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                     {'display': ''},\
                     {'display': ''},\
                     {'display': ''},\
+                    {'display': ''},\
                     {'data': idle_traces,
                      'layout': go.Layout(
                              title='Agent Idle Time (% of overall time)',
@@ -486,9 +488,9 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                              margin= graphingRegionMargins,
                              font=dict(family='Ubuntu', size=12)
                              )},\
-                    'Re-Run Call ALlocation Simulation'
+                    'Re-Run Call Allocation Simulation'
     else:
-        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Run Call Allocation Simulation'
+        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Run Call Allocation Simulation'
 
 #------------------
 #Show/Hide the cost graph depending on type chosen
