@@ -128,8 +128,8 @@ app.layout = html.Div([
                           html.Div(children=dash_daq.BooleanSwitch(id='autopopulate-switch', on=False), className='col-md-2 my-2 pt-2 pr-2 pl-0')
                           ], className='row'),
 
-                html.Div([html.Button(id="run-simulation-btn", children=[html.Div(id='run-simulation', children="Run Call Allocation Simulation", style={'display': 'inline-block'}),
-                                    html.I(id='wait-for-results', className='fas fa-cog fa-spin pl-1', style={'display': 'none'})
+                html.Div([html.Button(id="run-simulation-btn", children=[html.Div(id='run-simulation', children="Run Call Allocation Simulation", style={'display': 'inline-block'}, className='pr-3'),
+                                    html.I(id='wait-for-results', className='fas fa-cog fa-spin', style={'display': 'none'})
                                     ], className='btn btn-outline-info btn-block col'),
                           ], className='row mx-2'),
 
