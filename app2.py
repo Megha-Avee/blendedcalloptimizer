@@ -372,10 +372,11 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
                                     weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
         else:
-            print("Agent Table >>---->>", agent_tbl)
+            print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
+            agent_tbl = agent_tbl.result
 
         if allocation_method == 1:
-            costTable = agent_tbl[1]
+            costTable = agent_tbl.[1]
             agent_tbl = agent_tbl[0]
         else:
             costTable = pd.DataFrame()
