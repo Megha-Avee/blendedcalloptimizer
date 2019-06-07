@@ -376,7 +376,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
             agent_tbl = agent_tbl.result
 
         if allocation_method == 1:
-            costTable = agent_tbl.[1]
+            costTable = agent_tbl[1]
             agent_tbl = agent_tbl[0]
         else:
             costTable = pd.DataFrame()
