@@ -581,8 +581,14 @@ def populate_agent_filter(cost_table_json, allocation_method):
     else:
         return []
 
+#-------------------------------
+#Testing Queueing functions:
 
+from rq import Queue
+from worker import conn
 
+q = Queue(connection=conn)
+result = q.enqueue(cgd.agent_table, 'http://heroku.com')
 
 
 #-------------------------------
