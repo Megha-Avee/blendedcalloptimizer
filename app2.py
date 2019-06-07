@@ -371,6 +371,8 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
             agent_tbl = q.enqueue(cgd.agent_table, int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
                                     weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
+        else:
+            print("Agent Table >>---->>", agent_tbl)
 
         if allocation_method == 1:
             costTable = agent_tbl[1]
