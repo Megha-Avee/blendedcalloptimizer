@@ -24,6 +24,9 @@ from app import graphingRegion, margin
 import call_gen_demo as cgd
 from call_generator_distribution import agentAggMetrics, overallMetrics
 
+from rq import Queue
+from worker import conn
+
 app = dash.Dash(meta_tags=[{'name':"viewport", 'content':"width=device-width, initial-scale=1"}])
 app.title = 'Blended Call Optimizer'
 
@@ -351,6 +354,13 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
         aht_range = [int(aht_from), int(aht_to)]
         agent_count = int(agent_count)
 
+        #-------------------------------
+        #Testing Queueing functions:
+
+        q = Queue(connection=conn)
+        result = q.enqueue(cgd.agent_table, 'http://heroku.com')
+        #-------------------------------
+
         call_tbl = cgd.call_table(intvl_st_time, intvl_call_count, aht_range)
         agent_tbl = cgd.agent_table(int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
@@ -581,14 +591,6 @@ def populate_agent_filter(cost_table_json, allocation_method):
     else:
         return []
 
-#-------------------------------
-#Testing Queueing functions:
-
-from rq import Queue
-from worker import conn
-
-q = Queue(connection=conn)
-result = q.enqueue(cgd.agent_table, 'http://heroku.com')
 
 
 #-------------------------------
