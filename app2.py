@@ -128,7 +128,7 @@ app.layout = html.Div([
                           html.Div(children=dash_daq.BooleanSwitch(id='autopopulate-switch', on=False), className='col-md-2 my-2 pt-2 pr-2 pl-0')
                           ], className='row'),
 
-                html.Div([html.Button([html.Div(id='run-simulation', children="Run Call Allocation Simulation", style={'display': 'inline-block'}),
+                html.Div([html.Button(id="run-simulation-btn", children=[html.Div(id='run-simulation', children="Run Call Allocation Simulation", style={'display': 'inline-block'}),
                                     html.I(id='wait-for-results', className='fas fa-cog fa-spin pl-1', style={'display': 'none'})
                                     ], className='btn btn-outline-info btn-block col'),
                           ], className='row mx-2'),
@@ -299,7 +299,7 @@ def show_call_allocation_desc(allocation_method):
                 {'display': 'none'}
 
 @app.callback(Output('result-section', 'style'),
-              [Input('run-simulation', 'n_clicks')])
+              [Input('run-simulation-btn', 'n_clicks')])
 
 def show_result_section(n_clicks):
     if n_clicks is not None:
@@ -322,7 +322,7 @@ agent_tbl = None
                 Output('run-simulation', 'children'),
                 Output('wait-for-results', 'style')
                 ],
-                [Input('run-simulation', 'n_clicks')],
+                [Input('run-simulation-btn', 'n_clicks')],
                 [State('allocation-method', 'value'),
                  State('factor-switch', 'value'),
                  State('agent-count', 'value'),
