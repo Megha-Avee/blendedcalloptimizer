@@ -128,8 +128,9 @@ app.layout = html.Div([
                           html.Div(children=dash_daq.BooleanSwitch(id='autopopulate-switch', on=False), className='col-md-2 my-2 pt-2 pr-2 pl-0')
                           ], className='row'),
 
-                html.Div([html.Div([html.Div("Run Call Allocation Simulation", style={'display': 'inline-block'}),
-                          html.I(id='wait-for-results', className='fas fa-cog fa-spin', style={'display': 'none'})], id='run-simulation', className='btn btn-outline-info btn-block col'),
+                html.Div([html.Div([html.Div(id='run-simulation', children="Run Call Allocation Simulation", style={'display': 'inline-block'}),
+                                    html.I(id='wait-for-results', className='fas fa-cog fa-spin', style={'display': 'none'})
+                                    ], className='btn btn-outline-info btn-block col'),
                           ], className='row mx-2'),
 
 #                html.Hr(),
@@ -376,7 +377,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
                                     weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
 
-            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'We are running your simulation. Click again to check for output in few seconds.', {'display': 'inline-block'}
+            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Running your simulation! Click again to check for output in few seconds.', {'display': 'inline-block'}
 
         else:
             print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
