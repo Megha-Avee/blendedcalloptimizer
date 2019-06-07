@@ -316,6 +316,7 @@ agent_tbl = None
                 Output('agent-idle-times', 'figure'),
                 Output('agent-switches', 'figure'),
                 Output('call-distribution', 'figure'),
+                Output('run-simulation', 'children')
                 ],
                 [Input('run-simulation', 'n_clicks')],
                 [State('allocation-method', 'value'),
@@ -371,117 +372,123 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
             agent_tbl = q.enqueue(cgd.agent_table, int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
                                     weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
+
+            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'We are running your simulation. Click again to check for output in few seconds.'
+
         else:
             print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
             agent_tbl = agent_tbl.result
 
-        if allocation_method == 1:
-            costTable = agent_tbl[1]
-            agent_tbl = agent_tbl[0]
-        else:
-            costTable = pd.DataFrame()
+            if allocation_method == 1:
+                costTable = agent_tbl[1]
+                agent_tbl = agent_tbl[0]
+            else:
+                costTable = pd.DataFrame()
 
-        agent_metrics = agentAggMetrics(agent_tbl)
-        overall_metrics = overallMetrics(agent_tbl)
+            agent_metrics = agentAggMetrics(agent_tbl)
+            overall_metrics = overallMetrics(agent_tbl)
 
-        agent_metrics_to_display = metrics_display(agent_metrics)
-        overall_metrics_to_display = overall_metrics_display(overall_metrics)
+            agent_tbl = None
 
-        #plot agent metrics
-        #-------------------
-        idle_traces = []
+            agent_metrics_to_display = metrics_display(agent_metrics)
+            overall_metrics_to_display = overall_metrics_display(overall_metrics)
 
-        idle_traces.append(go.Bar(
-                x=agent_metrics['agent_index'],
-                y=agent_metrics['idle_time'],
-                text=['Agent ' + str(agent_metrics['agent_index'][x]) + ' idles for: ' + "{0:.1%}".format(agent_metrics['idle_time'][x]) for x in agent_metrics.index.tolist()],
-                hoverinfo='text',
-                marker=dict(
-                        color='rgb(58,200,225)',
-                        line=dict(
-                                color='rgb(8,48,107)',
-                                width=1.5),
-                                ),
-                name="Agent Idle Times (% of total time)",
-                opacity=0.6
-                ))
+            #plot agent metrics
+            #-------------------
+            idle_traces = []
 
-        #-------------------
-        #plot call distribution
-        call_types = ['inbound', 'outbound']
-
-        #plot call switches
-        #-------------------
-        switch_traces = []
-
-        switch_traces.append(go.Bar(
-                x=agent_metrics['agent_index'],
-                y=agent_metrics['number_of_switches'],
-                text=['Agent ' + str(agent_metrics['agent_index'][x]) + ' switched call types ' + "{} times".format(agent_metrics['number_of_switches'][x]) for x in agent_metrics.index.tolist()],
-                hoverinfo='text',
-                marker=dict(
-                        color='rgb(222,45,38)',
-                        line=dict(
-                                color='rgb(222,45,38)',
-                                width=1.5),
-                                ),
-                name="Agent Call Switches",
-                opacity=0.6
-                ))
-        #-------------------
-        #plot call distributions
-        dist_traces = []
-
-        for calltypes in call_types:
-            dist_traces.append(go.Bar(
+            idle_traces.append(go.Bar(
                     x=agent_metrics['agent_index'],
-                    y=agent_metrics[calltypes],
-                    text=['Agent ' + str(agent_metrics['agent_index'][x]) + ' took ' + "{0:.1%} ".format(agent_metrics[calltypes][x]) + calltypes for x in agent_metrics.index.tolist()],
+                    y=agent_metrics['idle_time'],
+                    text=['Agent ' + str(agent_metrics['agent_index'][x]) + ' idles for: ' + "{0:.1%}".format(agent_metrics['idle_time'][x]) for x in agent_metrics.index.tolist()],
                     hoverinfo='text',
-                    name="Contact Type: " + calltypes,
+                    marker=dict(
+                            color='rgb(58,200,225)',
+                            line=dict(
+                                    color='rgb(8,48,107)',
+                                    width=1.5),
+                                    ),
+                    name="Agent Idle Times (% of total time)",
                     opacity=0.6
                     ))
 
-        #-------------------
-        graphingRegionMargins = go.layout.Margin(l=80,r=10, b=40, t=40, pad=20)
+            #-------------------
+            #plot call distribution
+            call_types = ['inbound', 'outbound']
+
+            #plot call switches
+            #-------------------
+            switch_traces = []
+
+            switch_traces.append(go.Bar(
+                    x=agent_metrics['agent_index'],
+                    y=agent_metrics['number_of_switches'],
+                    text=['Agent ' + str(agent_metrics['agent_index'][x]) + ' switched call types ' + "{} times".format(agent_metrics['number_of_switches'][x]) for x in agent_metrics.index.tolist()],
+                    hoverinfo='text',
+                    marker=dict(
+                            color='rgb(222,45,38)',
+                            line=dict(
+                                    color='rgb(222,45,38)',
+                                    width=1.5),
+                                    ),
+                    name="Agent Call Switches",
+                    opacity=0.6
+                    ))
+            #-------------------
+            #plot call distributions
+            dist_traces = []
+
+            for calltypes in call_types:
+                dist_traces.append(go.Bar(
+                        x=agent_metrics['agent_index'],
+                        y=agent_metrics[calltypes],
+                        text=['Agent ' + str(agent_metrics['agent_index'][x]) + ' took ' + "{0:.1%} ".format(agent_metrics[calltypes][x]) + calltypes for x in agent_metrics.index.tolist()],
+                        hoverinfo='text',
+                        name="Contact Type: " + calltypes,
+                        opacity=0.6
+                        ))
+
+            #-------------------
+            graphingRegionMargins = go.layout.Margin(l=80,r=10, b=40, t=40, pad=20)
 
 
 
-        return costTable.to_json(date_format='iso', orient='split'),\
-                agent_metrics_to_display, overall_metrics_to_display,\
-                {'display': ''},\
-                {'display': ''},\
-                {'display': ''},\
-                {'data': idle_traces,
-                 'layout': go.Layout(
-                         title='Agent Idle Time (% of overall time)',
-                         xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
-                         yaxis={'zeroline': True, 'showgrid': True, 'range': [0.9*min(agent_metrics['idle_time']), 1.1*max(agent_metrics['idle_time'])], 'tickformat': ",.1%"},
-                         margin= graphingRegionMargins,
-                         font=dict(family='Ubuntu', size=12)
-                         )
-                 },\
-                {'data': switch_traces,
-                 'layout': go.Layout(
-                         title='Number of Call Type switches',
-                         xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
-                         yaxis={'zeroline': True, 'showgrid': True, 'range': [0.9*min(agent_metrics['number_of_switches']), 1.1*max(agent_metrics['number_of_switches'])], 'tickformat': ""},
-                         margin= graphingRegionMargins,
-                         font=dict(family='Ubuntu', size=12)
-                         )
-                 },\
-                {'data': dist_traces,
-                 'layout': go.Layout(
-                         barmode='stack',
-                         title='Call distribution by agent',
-                         showlegend=False,
-                         xaxis={'showticklabels': False},
-                         yaxis={'tickformat': ",.1%"},
-                         margin= graphingRegionMargins,
-                         font=dict(family='Ubuntu', size=12)
-                         )}
+            return costTable.to_json(date_format='iso', orient='split'),\
+                    agent_metrics_to_display, overall_metrics_to_display,\
+                    {'display': ''},\
+                    {'display': ''},\
+                    {'display': ''},\
+                    {'data': idle_traces,
+                     'layout': go.Layout(
+                             title='Agent Idle Time (% of overall time)',
+                             xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
+                             yaxis={'zeroline': True, 'showgrid': True, 'range': [0.9*min(agent_metrics['idle_time']), 1.1*max(agent_metrics['idle_time'])], 'tickformat': ",.1%"},
+                             margin= graphingRegionMargins,
+                             font=dict(family='Ubuntu', size=12)
+                             )
+                     },\
+                    {'data': switch_traces,
+                     'layout': go.Layout(
+                             title='Number of Call Type switches',
+                             xaxis={'zeroline': False, 'showgrid': False, 'showticklabels': False},
+                             yaxis={'zeroline': True, 'showgrid': True, 'range': [0.9*min(agent_metrics['number_of_switches']), 1.1*max(agent_metrics['number_of_switches'])], 'tickformat': ""},
+                             margin= graphingRegionMargins,
+                             font=dict(family='Ubuntu', size=12)
+                             )
+                     },\
+                    {'data': dist_traces,
+                     'layout': go.Layout(
+                             barmode='stack',
+                             title='Call distribution by agent',
+                             showlegend=False,
+                             xaxis={'showticklabels': False},
+                             yaxis={'tickformat': ",.1%"},
+                             margin= graphingRegionMargins,
+                             font=dict(family='Ubuntu', size=12)
+                             )},\
+                    'Re-Run Call ALlocation Simulation'
     else:
-        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}
+        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Run Call Allocation Simulation'
 
 #------------------
 #Show/Hide the cost graph depending on type chosen
