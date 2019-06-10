@@ -50,7 +50,7 @@ Created by: Aveedibya Dey | [Contact Me/Leave Feedback](https://aveedibyadey.typ
 
 app.layout = html.Div([
 
-                html.Div("Call Allocation Optimizer", className='container-fluid display-4 text-center mt-2', style={'height': '', 'padding-left': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
+                html.Div("Call Allocation Optimizer", className='container-fluid display-4 text-center pt-2', style={'max-height': '15vh', 'padding-left': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
 
                 html.Div("Design. Tweak. Optimize.", className='continer-fluid h3 mt-2 text-center', style={'height': '', 'padding-right': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
 
@@ -195,7 +195,7 @@ app.layout = html.Div([
             html.Div([html.Span([html.Span("Designed with lots of ", style={'display': 'inline-block', 'padding-right': '5px'}),
                                  html.I(className='fas fa-mug-hot', style={'display': 'inline-block', 'padding-bottom': '2px'})
                                  ]),
-                      dcc.Markdown(footnote_markdown)], className='text-center mt-3 pt-3 bg-light container-fluid', style={'height': '50px', 'font-size': '0.8em'})
+                      dcc.Markdown(footnote_markdown)], className='text-center mt-3 mb-0 py-3 bg-light container-fluid', style={'height': '50px', 'font-size': '0.8em'})
 
         ], className='bg-light', style={'font-family': 'Ubuntu'})
 
