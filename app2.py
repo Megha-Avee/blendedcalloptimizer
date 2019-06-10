@@ -376,11 +376,17 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
             agent_tbl = q.enqueue(cgd.agent_table, int(agent_count), call_tbl, use_cost_calculation=allocation_method,\
                                     weight_idle=weight_idle, weight_dist=weight_dist,\
                                     weight_switch=weight_switch, call_switch_agent_time=int(switching_cost))
+            
+            print(">>>--->>>--- Job Id is: ", agent_tbl.key)
+            #Retrieve this job: Job.fetch(job_id, connection=conn)
+            agent_tbl.meta['progress_status'] = 'Building Agent Table'
+            agent_tbl.save()
 
             return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Running your simulation! Click again to check for output in few seconds.', {'display': 'inline-block'}
 
         else:
-            print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
+            #print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
+            print(">>-->> Printing job meta: ", agent_tbl.meta['progress_status']
             agent_tbl = agent_tbl.result
 
             if allocation_method == 1:
