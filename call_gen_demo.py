@@ -73,6 +73,7 @@ def agent_table(agent_count, call_table_df, use_cost_calculation=0, weight_idle=
 
 
     job= get_current_job()
+    print("\n\n>>---------->> Accessing job from within agent table: ", job, "\n-----------\n")
     
 
     for i in range(len(call_table_df)):
