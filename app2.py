@@ -27,7 +27,8 @@ from call_generator_distribution import agentAggMetrics, overallMetrics
 from rq import Queue
 from worker import conn
 
-app = dash.Dash(meta_tags=[{'name':"viewport", 'content':"width=device-width, initial-scale=1"}])
+app = dash.Dash(meta_tags=[{'name':"viewport", 'content':"width=device-width, initial-scale=1"}],
+                external_stylesheets=['/assets/appcss.css'])
 app.title = 'Blended Call Optimizer'
 
 server = app.server
