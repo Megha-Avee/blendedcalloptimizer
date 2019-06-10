@@ -27,8 +27,7 @@ from call_generator_distribution import agentAggMetrics, overallMetrics
 from rq import Queue
 from worker import conn
 
-app = dash.Dash(meta_tags=[{'name':"viewport", 'content':"width=device-width, initial-scale=1"}],
-                external_stylesheets=['/assets/appcss.css'])
+app = dash.Dash(meta_tags=[{'name':"viewport", 'content':"width=device-width, initial-scale=1"}])
 app.title = 'Blended Call Optimizer'
 
 server = app.server
@@ -620,7 +619,8 @@ def populate_agent_filter(cost_table_json, allocation_method):
 #-------------------------------
 #External CSS Links
 external_css = ["https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css",
-                "https://fonts.googleapis.com/css?family=Ubuntu&display=swap"]
+                "https://fonts.googleapis.com/css?family=Ubuntu&display=swap",
+                "/assets/appcss.css"]
 
 for css in external_css:
     app.css.append_css({"external_url": css})
