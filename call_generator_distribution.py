@@ -81,8 +81,12 @@ def calculateAgentCosts(agent_costs, call_types, next_call, agent_tbl, call_swit
         #print(idleness_cost_factor)
         switch_cost_factor = 0
         
-        if agent_costs['last_call_type'].notnull()[agent_index]:
-            if call_types.find(agent_costs['last_call_type'][agent_index]) != next_call_type_index:
+#        if agent_costs['last_call_type'].notnull()[agent_index]:
+        agent_last_call_type_list = agent_tbl[agent_tbl['agent_index']==agent_index]['call_type'].tail(1).values
+        if len(agent_last_call_type_list) > 0:
+            agent_last_call_type = agent_last_call_type_list[0]
+#            print(">>--->>", agent_last_call_type)
+            if call_types.index(agent_last_call_type) != next_call_type_index:
                 switch_cost_factor = call_switch_agent_time/call_bp_time
         
         #print(switch_cost_factor)
@@ -136,6 +140,9 @@ def pickLeastCostlyAgent(agent_status, call_types, next_call,
     
     #print("------->>----")
     #print(agent_costs)
+#    agent_costs['last_call_type'][agent_costs['agent_index']==pickedAgent] = next_call.reset_index()['call_type'][0]
+    print("Here are some details:", agent_costs, agent_costs[agent_costs['agent_index']==pickedAgent]['last_call_type'], pickedAgent, next_call.reset_index()['call_type'][0])
+    
     return pickedAgent, agent_costs
 
 
@@ -188,7 +195,7 @@ def overallMetrics(agent_tbl, call_types=['inbound', 'outbound']):
 if __name__ == '__main__':
     intvl_avg_calls = list(range(0,24,1)) + list(range(24,0,-1))
     intvl_call_count = [np.random.poisson(x) for x in intvl_avg_calls]
-    max_intvl_calls = 5
+    max_intvl_calls = 2
     intvl_avg_calls = [x*max_intvl_calls/max(intvl_avg_calls) for x in intvl_avg_calls]
     intvl_st_time_day = [(dt.datetime(2018,1,1,0,0,0) + dt.timedelta(minutes= +30*x))  for x in range(len(intvl_avg_calls))]
     intvl_st_time = [dt.time(x.hour, x.minute, x.second) for x in intvl_st_time_day]
