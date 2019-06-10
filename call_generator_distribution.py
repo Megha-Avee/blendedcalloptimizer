@@ -141,7 +141,7 @@ def pickLeastCostlyAgent(agent_status, call_types, next_call,
     #print("------->>----")
     #print(agent_costs)
 #    agent_costs['last_call_type'][agent_costs['agent_index']==pickedAgent] = next_call.reset_index()['call_type'][0]
-    print("Here are some details:", agent_costs, agent_costs[agent_costs['agent_index']==pickedAgent]['last_call_type'], pickedAgent, next_call.reset_index()['call_type'][0])
+    #print("Here are some details:", agent_costs, agent_costs[agent_costs['agent_index']==pickedAgent]['last_call_type'], pickedAgent, next_call.reset_index()['call_type'][0])
     
     return pickedAgent, agent_costs
 

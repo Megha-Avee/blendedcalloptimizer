@@ -386,7 +386,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
 
         else:
             #print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
-            print(">---------->\n >>-->> Printing job meta: ", agent_tbl.meta['progress_status'], '\n>---------->')
+            #print(">---------->\n >>-->> Printing job meta: ", agent_tbl.meta['progress_status'], '\n>---------->')
             agent_tbl = agent_tbl.result
 
             if allocation_method == 1:
