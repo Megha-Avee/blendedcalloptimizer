@@ -10,6 +10,8 @@ import datetime as dt
 
 from call_generator_distribution import dynamicCall, pickLeastCostlyAgent
 
+from rq import get_current_job
+
 #Define some attributes of a call
 class inboundCall:
     """
@@ -69,7 +71,14 @@ def agent_table(agent_count, call_table_df, use_cost_calculation=0, weight_idle=
     costTable = pd.DataFrame(columns=['agent_index', 'call_skewness', 'idle_time', \
                                     'last_call_type', 'agent_status', 'idle_cost', 'switch_cost', 'skewness_cost', 'assignment_cost']) 
 
+
+    job= get_current_job()
+    
+
     for i in range(len(call_table_df)):
+        
+        job.meta['progress_status'] = i/range(len(call_table_df))
+        job.save()
 
         agent_status = updateAgentStatus(call_table_df['call_start_time'][i], agent_status, agent_table_df)
         agentPicked = assignCalltoAgent(agent_status, agent_table_df, next_call_details=call_table_df[i:i+1],\

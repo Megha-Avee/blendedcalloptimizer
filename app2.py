@@ -386,7 +386,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
 
         else:
             #print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
-            print(">>-->> Printing job meta: ", agent_tbl.meta['progress_status'])
+            print(">---------->\n >>-->> Printing job meta: ", agent_tbl.meta['progress_status'], '\n>---------->')
             agent_tbl = agent_tbl.result
 
             if allocation_method == 1:
@@ -570,10 +570,10 @@ def cost_table_views(cost_table_json, allocation_method, cost_filter, cost_type,
             allocation_traces.append(go.Scatter(
                     x=costTable[costTable['agent_index']==agent_index].reset_index().index,
                     y=cost_to_display,
-                    mode='lines+markers',
+                    mode='lines',
                     name='Agent ' + str(agent_index),
                     line = dict(width = 4),
-                    marker = dict(size = 8),
+                    #marker = dict(size = 8),
                     opacity = 0.8
                     ))
 
