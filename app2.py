@@ -379,8 +379,8 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
             
             print(">>>--->>>--- Job Id is: ", agent_tbl.key)
             #Retrieve this job: Job.fetch(job_id, connection=conn)
-            agent_tbl.meta['progress_status'] = 'Building Agent Table'
-            agent_tbl.save()
+            #agent_tbl.meta['progress_status'] = 'Building Agent Table'
+            #agent_tbl.save()
 
             return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Running your simulation! Click again to check for output in few seconds.', {'display': 'inline-block'}
 
