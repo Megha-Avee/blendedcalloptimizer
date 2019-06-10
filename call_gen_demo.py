@@ -77,7 +77,7 @@ def agent_table(agent_count, call_table_df, use_cost_calculation=0, weight_idle=
 
     for i in range(len(call_table_df)):
         
-        job.meta['progress_status'] = i/range(len(call_table_df))
+        job.meta['progress_status'] = i/len(call_table_df)
         job.save()
 
         agent_status = updateAgentStatus(call_table_df['call_start_time'][i], agent_status, agent_table_df)
