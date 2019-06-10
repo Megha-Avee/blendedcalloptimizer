@@ -198,7 +198,7 @@ app.layout = html.Div([
                                  ]),
                       dcc.Markdown(footnote_markdown)], className='text-center mt-3 mb-0 py-3 bg-light container-fluid', style={'height': '50px', 'font-size': '0.8em'})
 
-        ], className='bg-light', style={'font-family': 'Ubuntu'})
+        ], className='bg-light py-3', style={'font-family': 'Ubuntu'})
 
 
 #------------------------------
