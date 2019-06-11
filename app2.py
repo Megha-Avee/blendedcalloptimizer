@@ -312,6 +312,7 @@ def show_result_section(n_clicks):
 
 agent_tbl = None
 
+
 @app.callback([Output('table', 'children'),
                 Output('agent-metrics', 'children'),
                 Output('overall-metrics', 'children'),
