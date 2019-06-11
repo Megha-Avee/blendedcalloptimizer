@@ -324,11 +324,11 @@ agent_tbl = None
                 Output('call-distribution', 'figure'),
                 Output('run-simulation', 'children'),
                 Output('wait-for-results', 'style'),
-                Output('interval-component', 'n_intervals')
+                Output('interval-component', 'max_intervals')
                 ],
                 [Input('run-simulation-btn', 'n_clicks'),
-                 Input('interval-component', 'n_intervals'),
-                 Input('interval-component', 'max_intervals')],
+                 Input('interval-component', 'n_intervals')
+                 ],
                 [State('allocation-method', 'value'),
                  State('factor-switch', 'value'),
                  State('agent-count', 'value'),
@@ -340,7 +340,7 @@ agent_tbl = None
                  State('weight-factor-dist', 'value')]
               )
 
-def calculate_metrics(n_clicks, n_intervals, max_intervals, allocation_method, switching_cost, agent_count, call_level, aht_from, aht_to, weight_idle, weight_switch, weight_dist):
+def calculate_metrics(n_clicks, n_intervals, allocation_method, switching_cost, agent_count, call_level, aht_from, aht_to, weight_idle, weight_switch, weight_dist):
 
     if n_clicks is not None:
 
@@ -388,7 +388,7 @@ def calculate_metrics(n_clicks, n_intervals, max_intervals, allocation_method, s
             #agent_tbl.meta['progress_status'] = 'Building Agent Table'
             #agent_tbl.save()
 
-            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Running your simulation! Click again to check for output in few seconds.', {'display': 'inline-block'}, 0
+            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Running your simulation! Click again to check for output in few seconds.', {'display': 'inline-block'}, 600
 
         else:
             #print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
@@ -504,9 +504,9 @@ def calculate_metrics(n_clicks, n_intervals, max_intervals, allocation_method, s
                              font=dict(family='Ubuntu', size=12)
                              )},\
                     'Re-Run Call Allocation Simulation', {'display': 'none'},\
-                    max_intervals
+                    0
     else:
-        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Run Call Allocation Simulation', {'display': 'none'}, max_intervals
+        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Run Call Allocation Simulation', {'display': 'none'}, 0
 
 #------------------
 #Show/Hide the cost graph depending on type chosen
