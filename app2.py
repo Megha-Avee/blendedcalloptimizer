@@ -389,7 +389,7 @@ def calculate_metrics(n_clicks, n_intervals, allocation_method, switching_cost, 
             #agent_tbl.meta['progress_status'] = 'Building Agent Table'
             #agent_tbl.save()
 
-            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Running your simulation! Click again to check for output in few seconds.', {'display': 'inline-block'}, 600
+            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Running your simulation! Click again to check for output in few seconds.', {'display': 'inline-block'}, 0
 
         else:
             #print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
