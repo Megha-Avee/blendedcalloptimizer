@@ -196,7 +196,9 @@ app.layout = html.Div([
             html.Div([html.Span([html.Span("Designed with lots of ", style={'display': 'inline-block', 'padding-right': '5px'}),
                                  html.I(className='fas fa-mug-hot', style={'display': 'inline-block', 'padding-bottom': '2px'})
                                  ]),
-                      dcc.Markdown(footnote_markdown)], className='text-center mt-3 mb-0 py-3 bg-light container-fluid', style={'height': '50px', 'font-size': '0.8em'})
+                      dcc.Markdown(footnote_markdown)], className='text-center mt-3 mb-0 py-3 bg-light container-fluid', style={'height': '50px', 'font-size': '0.8em'}),
+                
+            dcc.Interval(id='interval-component', interval=1*2000, n_intervals=600, max_intervals=600), 
 
         ], className='bg-light py-3', style={'font-family': 'Ubuntu'})
 
@@ -321,9 +323,12 @@ agent_tbl = None
                 Output('agent-switches', 'figure'),
                 Output('call-distribution', 'figure'),
                 Output('run-simulation', 'children'),
-                Output('wait-for-results', 'style')
+                Output('wait-for-results', 'style'),
+                Output('interval-component', 'n_intervals')
                 ],
-                [Input('run-simulation-btn', 'n_clicks')],
+                [Input('run-simulation-btn', 'n_clicks'),
+                 Input('interval-component', 'n_intervals'),
+                 Input('interval-component', 'max_intervals')],
                 [State('allocation-method', 'value'),
                  State('factor-switch', 'value'),
                  State('agent-count', 'value'),
@@ -335,7 +340,7 @@ agent_tbl = None
                  State('weight-factor-dist', 'value')]
               )
 
-def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, call_level, aht_from, aht_to, weight_idle, weight_switch, weight_dist):
+def calculate_metrics(n_clicks, n_intervals, max_intervals, allocation_method, switching_cost, agent_count, call_level, aht_from, aht_to, weight_idle, weight_switch, weight_dist):
 
     if n_clicks is not None:
 
@@ -383,11 +388,11 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
             #agent_tbl.meta['progress_status'] = 'Building Agent Table'
             #agent_tbl.save()
 
-            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Running your simulation! Click again to check for output in few seconds.', {'display': 'inline-block'}
+            return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Running your simulation! Click again to check for output in few seconds.', {'display': 'inline-block'}, 0
 
         else:
             #print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
-            print(">---------->\n >>-->> Printing job meta: ", agent_tbl.meta['progress_status'], '\n>---------->')
+            #print(">---------->\n >>-->> Printing job meta: ", agent_tbl.meta['progress_status'], '\n>---------->')
             agent_tbl = agent_tbl.result
 
             if allocation_method == 1:
@@ -498,9 +503,10 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
                              margin= graphingRegionMargins,
                              font=dict(family='Ubuntu', size=12)
                              )},\
-                    'Re-Run Call Allocation Simulation', {'display': 'none'}
+                    'Re-Run Call Allocation Simulation', {'display': 'none'},\
+                    max_intervals
     else:
-        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Run Call Allocation Simulation', {'display': 'none'}
+        return '', '', '', {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {}, {}, {}, 'Run Call Allocation Simulation', {'display': 'none'}, max_intervals
 
 #------------------
 #Show/Hide the cost graph depending on type chosen
