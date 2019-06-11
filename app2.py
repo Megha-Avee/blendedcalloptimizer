@@ -26,6 +26,7 @@ from call_generator_distribution import agentAggMetrics, overallMetrics
 
 from rq import Queue
 from worker import conn
+from rq import get_current_job
 
 app = dash.Dash(meta_tags=[{'name':"viewport", 'content':"width=device-width, initial-scale=1"}])
 app.title = 'Blended Call Optimizer'
@@ -50,7 +51,7 @@ Created by: Aveedibya Dey | [Contact Me/Leave Feedback](https://aveedibyadey.typ
 
 app.layout = html.Div([
 
-                html.Div("Call Allocation Optimizer", className='container-fluid display-4 text-center pt-2', style={'max-height': '15vh', 'padding-left': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
+                html.Div("Call Allocation Optimizer", className='container-fluid display-4 text-center pt-2', style={'height': '', 'padding-left': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
 
                 html.Div("Design. Tweak. Optimize.", className='continer-fluid h3 mt-2 text-center', style={'height': '', 'padding-right': '0px', 'color': 'gray', 'font-family': 'Ubuntu'}),
 
@@ -386,7 +387,7 @@ def calculate_metrics(n_clicks, allocation_method, switching_cost, agent_count, 
 
         else:
             #print("Agent Table >>---->> is of type:", type(agent_tbl.result), agent_tbl)
-            #print(">---------->\n >>-->> Printing job meta: ", agent_tbl.meta['progress_status'], '\n>---------->')
+            print(">---------->\n >>-->> Printing job meta: ", get_current_job().meta['progress_status'], '\n>---------->')
             agent_tbl = agent_tbl.result
 
             if allocation_method == 1:

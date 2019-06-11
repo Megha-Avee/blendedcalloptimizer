@@ -80,6 +80,7 @@ def agent_table(agent_count, call_table_df, use_cost_calculation=0, weight_idle=
         
         job.meta['progress_status'] = i/len(call_table_df)
         job.save()
+        print(job.meta['progress_status'])
 
         agent_status = updateAgentStatus(call_table_df['call_start_time'][i], agent_status, agent_table_df)
         agentPicked = assignCalltoAgent(agent_status, agent_table_df, next_call_details=call_table_df[i:i+1],\
